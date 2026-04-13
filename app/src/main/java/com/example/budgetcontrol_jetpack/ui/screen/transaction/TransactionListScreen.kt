@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -29,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,7 +49,8 @@ fun TransactionListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"))
-    val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.forLanguageTag("vi-VN"))
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.forLanguageTag("vi-VN"))
+    val timeFormatter = SimpleDateFormat("HH:mm", Locale.forLanguageTag("vi-VN"))
 
     Scaffold(
         containerColor = ScreenBackground,
@@ -184,30 +183,31 @@ fun TransactionListScreen(
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = item.title,
+                                    text = currencyFormatter.format(item.amount),
                                     style = MaterialTheme.typography.titleSmall,
-                                    color = Color(0xFF222222)
+                                    color = if (isIncome) IncomeText else ExpenseText
                                 )
                                 Text(
-                                    text = item.note.ifBlank { dateFormatter.format(item.createdAt) },
+                                    text = buildTransactionSubtitle(
+                                        categoryName = item.title,
+                                        note = item.note
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MutedText
+                                    color = Color(0xFF4F4A55)
                                 )
                             }
 
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    text = currencyFormatter.format(item.amount),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = if (isIncome) IncomeText else ExpenseText
+                                    text = dateFormatter.format(item.createdAt),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MutedText
                                 )
-                                TextButton(onClick = { viewModel.delete(item) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Xóa",
-                                        tint = ExpenseText
-                                    )
-                                }
+                                Text(
+                                    text = timeFormatter.format(item.createdAt),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MutedText
+                                )
                             }
                         }
                     }
@@ -277,3 +277,14 @@ private val IncomeSoft = Color(0xFFCFEFD3)
 private val IncomeText = Color(0xFF2F8F45)
 private val ExpenseSoft = Color(0xFFFFC9CF)
 private val ExpenseText = Color(0xFFE53935)
+
+private fun buildTransactionSubtitle(
+    categoryName: String,
+    note: String
+): String {
+    return if (note.isBlank()) {
+        categoryName
+    } else {
+        "$categoryName - $note"
+    }
+}
