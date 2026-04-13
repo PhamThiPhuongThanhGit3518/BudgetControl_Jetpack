@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,6 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +50,8 @@ import java.util.Locale
 fun TransactionListScreen(
     viewModel: TransactionListViewModel,
     onAddClick: () -> Unit,
-    onEditClick: (Long) -> Unit
+    onEditClick: (Long) -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"))
@@ -87,7 +93,7 @@ fun TransactionListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    HomeHeader()
+                    HomeHeader(onLogoutClick = onLogoutClick)
                 }
 
                 item {
@@ -218,18 +224,46 @@ fun TransactionListScreen(
 }
 
 @Composable
-private fun HomeHeader() {
+private fun HomeHeader(
+    onLogoutClick: () -> Unit
+) {
+    var showAccountMenu by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Tài khoản",
-            tint = Color(0xFF5FB7CF),
-            modifier = Modifier.size(34.dp)
-        )
+        Box {
+            IconButton(onClick = { showAccountMenu = true }) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Tài khoản",
+                    tint = Color(0xFF5FB7CF),
+                    modifier = Modifier.size(34.dp)
+                )
+            }
+
+            DropdownMenu(
+                expanded = showAccountMenu,
+                onDismissRequest = { showAccountMenu = false },
+                containerColor = Color.White
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = "Đăng xuất",
+                            color = Color.Black
+                        )
+                    },
+                    onClick = {
+                        showAccountMenu = false
+                        onLogoutClick()
+                    }
+                )
+            }
+        }
+
         IconButton(onClick = {}) {
             Icon(
                 imageVector = Icons.Default.Notifications,
