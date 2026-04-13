@@ -3,110 +3,128 @@ package com.example.budgetcontrol_jetpack.ui.screen.category
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryEditorViewModel
 import com.example.clean.entities.CategoryType
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryEditorScreen(
     viewModel: CategoryEditorViewModel,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Color.Black,
+        unfocusedTextColor = Color.Black,
+        focusedContainerColor = Color.White,
+        unfocusedContainerColor = Color.White,
+        focusedLabelColor = FieldLabel,
+        unfocusedLabelColor = FieldLabel,
+        focusedPlaceholderColor = FieldLabel,
+        unfocusedPlaceholderColor = FieldLabel,
+        focusedBorderColor = FieldBorder,
+        unfocusedBorderColor = FieldBorder,
+        cursorColor = Color.Black
+    )
 
-    LaunchedEffect(uiState.errorMessage) {
-        val message = uiState.errorMessage
-        if (!message.isNullOrBlank()) {
-            snackbarHostState.showSnackbar(message)
-            viewModel.clearError()
-        }
-    }
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Dialog(onDismissRequest = onDismiss) {
+        androidx.compose.material3.Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            color = SheetBackground,
+            shadowElevation = 8.dp
         ) {
-            Text(
-                text = if (uiState.id == 0L) "Thêm danh mục" else "Sửa danh mục",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            OutlinedTextField(
-                value = uiState.name,
-                onValueChange = viewModel::updateName,
-                label = { Text("Tên danh mục") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                modifier = Modifier.padding(22.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                FilterChip(
-                    selected = uiState.type == CategoryType.EXPENSE,
-                    onClick = { viewModel.updateType(CategoryType.EXPENSE) },
-                    label = { Text("Chi") }
+                Text(
+                    text = if (uiState.id == 0L) "Thêm danh mục" else "Sửa danh mục",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF333039)
                 )
-                FilterChip(
-                    selected = uiState.type == CategoryType.INCOME,
-                    onClick = { viewModel.updateType(CategoryType.INCOME) },
-                    label = { Text("Thu") }
+
+                OutlinedTextField(
+                    value = uiState.name,
+                    onValueChange = viewModel::updateName,
+                    label = { Text("Tên danh mục") },
+                    colors = fieldColors,
+                    modifier = Modifier.fillMaxWidth()
                 )
-            }
 
-            OutlinedTextField(
-                value = uiState.colorHex,
-                onValueChange = viewModel::updateColor,
-                label = { Text("Mã màu HEX") },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("#FF9800") }
-            )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = uiState.type == CategoryType.EXPENSE,
+                        onClick = { viewModel.updateType(CategoryType.EXPENSE) },
+                        label = { Text("Chi") }
+                    )
+                    FilterChip(
+                        selected = uiState.type == CategoryType.INCOME,
+                        onClick = { viewModel.updateType(CategoryType.INCOME) },
+                        label = { Text("Thu") }
+                    )
+                }
 
-            OutlinedTextField(
-                value = uiState.icon,
-                onValueChange = viewModel::updateIcon,
-                label = { Text("Tên icon") },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("restaurant") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text
+                OutlinedTextField(
+                    value = uiState.colorHex,
+                    onValueChange = viewModel::updateColor,
+                    label = { Text("Mã màu HEX") },
+                    placeholder = { Text("#FF9800") },
+                    colors = fieldColors,
+                    modifier = Modifier.fillMaxWidth()
                 )
-            )
 
-            Spacer(modifier = Modifier.weight(1f))
+                OutlinedTextField(
+                    value = uiState.icon,
+                    onValueChange = viewModel::updateIcon,
+                    label = { Text("Tên icon") },
+                    placeholder = { Text("restaurant") },
+                    colors = fieldColors,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            Button(
-                onClick = { viewModel.save(onDone) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (uiState.id == 0L) "Thêm danh mục" else "Lưu thay đổi")
+                if (!uiState.errorMessage.isNullOrBlank()) {
+                    Text(
+                        text = uiState.errorMessage.orEmpty(),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Button(
+                    onClick = { viewModel.save(onDone) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF0F5697),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(if (uiState.id == 0L) "Thêm danh mục" else "Lưu thay đổi")
+                }
             }
         }
     }
 }
+
+private val SheetBackground = Color(0xFFFBF5FD)
+private val FieldBorder = Color(0xFF8E8794)
+private val FieldLabel = Color(0xFF6F6874)
