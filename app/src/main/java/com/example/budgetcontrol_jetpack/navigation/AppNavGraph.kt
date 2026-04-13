@@ -29,6 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.budgetcontrol_jetpack.MyApp
+import com.example.budgetcontrol_jetpack.ui.screen.auth.AuthScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryEditorScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryListScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryTransactionHistoryDialog
@@ -108,9 +109,22 @@ fun AppNavGraph() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Destinations.HOME,
+            startDestination = Destinations.AUTH,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Destinations.AUTH) {
+                AuthScreen(
+                    onAuthSuccess = {
+                        navController.navigate(Destinations.HOME) {
+                            popUpTo(Destinations.AUTH) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+
             composable(Destinations.HOME) {
                 val vm = remember {
                     TransactionListViewModel(
@@ -125,6 +139,14 @@ fun AppNavGraph() {
                     },
                     onEditClick = { id ->
                         transactionEditorId = id
+                    },
+                    onLogoutClick = {
+                        navController.navigate(Destinations.AUTH) {
+                            popUpTo(Destinations.HOME) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }
