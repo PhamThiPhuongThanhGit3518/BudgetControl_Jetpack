@@ -1,6 +1,7 @@
 package com.example.budgetcontrol_jetpack.navigation
 
 object Destinations {
+    const val AUTH = "auth"
     const val HOME = "home"
     const val TRANSACTIONS = "transactions"
     const val TRANSACTION_EDITOR = "transaction_editor"
