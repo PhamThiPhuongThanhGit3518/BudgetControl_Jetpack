@@ -35,6 +35,7 @@ import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryListViewMode
 fun CategoryListScreen(
     viewModel: CategoryListViewModel,
     onAddClick: () -> Unit,
+    onCategoryClick: (Long) -> Unit,
     onEditClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -101,6 +102,7 @@ fun CategoryListScreen(
                 items(uiState.categories, key = { it.id }) { category ->
                     CategoryItem(
                         category = category,
+                        onClick = { onCategoryClick(category.id) },
                         onEditClick = { onEditClick(category.id) },
                         onDeleteClick = { viewModel.deleteCategory(category) }
                     )
