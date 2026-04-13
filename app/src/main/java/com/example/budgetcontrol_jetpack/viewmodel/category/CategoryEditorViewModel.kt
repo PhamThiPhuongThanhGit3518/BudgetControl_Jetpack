@@ -28,11 +28,11 @@ class CategoryEditorViewModel(
     val uiState: StateFlow<CategoryEditorUiState> = _uiState.asStateFlow()
 
     fun updateName(value: String) {
-        _uiState.value = _uiState.value.copy(name = value)
+        _uiState.value = _uiState.value.copy(name = value, errorMessage = null)
     }
 
     fun updateType(value: CategoryType) {
-        _uiState.value = _uiState.value.copy(type = value)
+        _uiState.value = _uiState.value.copy(type = value, errorMessage = null)
     }
 
     fun updateColor(value: String) {
@@ -73,9 +73,14 @@ class CategoryEditorViewModel(
         viewModelScope.launch {
             val state = _uiState.value
 
+            if (state.name.isBlank()) {
+                _uiState.value = state.copy(errorMessage = "Vui lòng nhập tên danh mục")
+                return@launch
+            }
+
             val category = Category(
                 id = state.id,
-                name = state.name,
+                name = state.name.trim(),
                 type = state.type,
                 colorHex = state.colorHex,
                 icon = state.icon,
