@@ -1,6 +1,7 @@
 package com.example.budgetcontrol_jetpack.ui.screen.category.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,13 +31,16 @@ import com.example.clean.entities.CategoryType
 @Composable
 fun CategoryItem(
     category: Category,
+    onClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     val isIncome = category.type == CategoryType.INCOME
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.medium,
         color = Color.White,
         shadowElevation = 1.dp
