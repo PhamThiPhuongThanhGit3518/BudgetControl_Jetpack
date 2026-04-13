@@ -5,10 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,7 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -46,7 +49,7 @@ fun DashboardScreen(
         ) {
             Text(
                 text = "Thống kê",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -105,11 +108,12 @@ fun DashboardScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        ExpenseBarChart(stats = uiState.stats)
-                        uiState.stats.forEach { item ->
-                            Text(
-                                text = "${item.categoryName}: ${currencyFormatter.format(item.totalAmount)}",
-                                style = MaterialTheme.typography.bodyMedium
+                        ExpensePieChart(stats = uiState.stats)
+                        uiState.stats.take(6).forEachIndexed { index, item ->
+                            ChartLegendRow(
+                                color = ChartColors[index % ChartColors.size],
+                                label = item.categoryName,
+                                value = currencyFormatter.format(item.totalAmount)
                             )
                         }
                     }
@@ -150,56 +154,81 @@ private fun StatCard(
 }
 
 @Composable
-private fun ExpenseBarChart(stats: List<CategoryExpenseStat>) {
-    val chartColors = listOf(
-        Color(0xFF4FA6A9),
-        Color(0xFF5D9B55),
-        Color(0xFF8069C9),
-        Color(0xFF2B73B7),
-        Color(0xFFE54535),
-        Color(0xFFD39A2B)
-    )
-    val maxAmount = stats.maxOfOrNull { it.totalAmount }?.takeIf { it > 0.0 } ?: 1.0
+private fun ExpensePieChart(stats: List<CategoryExpenseStat>) {
+    val visibleStats = stats.take(6)
+    val totalAmount = visibleStats.sumOf { it.totalAmount }.takeIf { it > 0.0 } ?: 1.0
 
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(230.dp)
             .background(Color.White)
     ) {
-        val leftPadding = 22.dp.toPx()
-        val bottomPadding = 22.dp.toPx()
-        val topPadding = 8.dp.toPx()
-        val chartHeight = size.height - topPadding - bottomPadding
-        val chartWidth = size.width - leftPadding
-
-        repeat(4) { index ->
-            val y = topPadding + chartHeight * index / 3
-            drawLine(
-                color = Color(0xFFE7E2EB),
-                start = Offset(leftPadding, y),
-                end = Offset(size.width, y),
-                strokeWidth = 1.dp.toPx()
-            )
-        }
-
-        val visibleStats = stats.take(6)
-        val itemWidth = chartWidth / visibleStats.size.coerceAtLeast(1)
-        val barWidth = itemWidth * 0.46f
+        val diameter = minOf(size.width, size.height) * 0.84f
+        val topLeft = Offset(
+            x = (size.width - diameter) / 2f,
+            y = (size.height - diameter) / 2f
+        )
+        var startAngle = -90f
 
         visibleStats.forEachIndexed { index, item ->
-            val barHeight = (item.totalAmount / maxAmount).toFloat() * chartHeight
-            val x = leftPadding + itemWidth * index + (itemWidth - barWidth) / 2
-            val y = topPadding + chartHeight - barHeight
+            val sweepAngle = (item.totalAmount / totalAmount).toFloat() * 360f
 
-            drawRect(
-                color = chartColors[index % chartColors.size],
-                topLeft = Offset(x, y),
-                size = Size(barWidth, barHeight)
+            drawArc(
+                color = ChartColors[index % ChartColors.size],
+                startAngle = startAngle,
+                sweepAngle = sweepAngle,
+                useCenter = true,
+                topLeft = topLeft,
+                size = Size(diameter, diameter)
             )
+            startAngle += sweepAngle
         }
+
+        drawCircle(
+            color = Color.White,
+            radius = diameter * 0.26f,
+            center = Offset(size.width / 2f, size.height / 2f)
+        )
+    }
+}
+
+@Composable
+private fun ChartLegendRow(
+    color: Color,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .background(color, CircleShape)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MutedText
+        )
     }
 }
 
 private val ScreenBackground = Color(0xFFFBF5FD)
 private val MutedText = Color(0xFF77737D)
+private val ChartColors = listOf(
+    Color(0xFF4FA6A9),
+    Color(0xFF5D9B55),
+    Color(0xFF8069C9),
+    Color(0xFF2B73B7),
+    Color(0xFFE54535),
+    Color(0xFFD39A2B)
+)
