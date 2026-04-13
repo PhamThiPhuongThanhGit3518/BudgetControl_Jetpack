@@ -4,11 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -19,7 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.budgetcontrol_jetpack.ui.screen.category.component.CategoryItem
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryListViewModel
@@ -42,32 +49,17 @@ fun CategoryListScreen(
     }
 
     Scaffold(
+        containerColor = ScreenBackground,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick) {
-                Text("+")
-            }
-        }
     ) { padding ->
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .padding(padding),
+                contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
-            }
-        } else if (uiState.categories.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Chưa có danh mục nào",
-                    style = MaterialTheme.typography.bodyLarge
-                )
             }
         } else {
             LazyColumn(
@@ -77,6 +69,35 @@ fun CategoryListScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                item {
+                    Button(
+                        onClick = onAddClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AccentBlue,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddBox,
+                            contentDescription = null
+                        )
+                        Text(
+                            text = "  Thêm danh mục mới",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                }
+
+                if (uiState.categories.isEmpty()) {
+                    item {
+                        Text(
+                            text = "Chưa có danh mục nào",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+
                 items(uiState.categories, key = { it.id }) { category ->
                     CategoryItem(
                         category = category,
@@ -88,3 +109,6 @@ fun CategoryListScreen(
         }
     }
 }
+
+private val ScreenBackground = Color(0xFFFBF5FD)
+private val AccentBlue = Color(0xFF0F5697)
