@@ -133,6 +133,7 @@ fun TransactionListScreen(
                     Text(
                         text = "Lịch sử giao dịch",
                         style = MaterialTheme.typography.titleMedium,
+                        color = Color(0xFF000000),
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }

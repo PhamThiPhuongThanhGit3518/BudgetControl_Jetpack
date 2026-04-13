@@ -50,6 +50,7 @@ fun DashboardScreen(
             Text(
                 text = "Thống kê",
                 style = MaterialTheme.typography.headlineSmall,
+                color = Color.Black
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -85,7 +86,8 @@ fun DashboardScreen(
 
             Text(
                 text = "Chi tiêu theo danh mục",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF000000)
             )
 
             Surface(
@@ -142,7 +144,7 @@ private fun StatCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
-                color = MutedText
+                color = Color(0xFF2A2D34)
             )
             Text(
                 text = value,
@@ -212,6 +214,7 @@ private fun ChartLegendRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF000000),
             modifier = Modifier.weight(1f)
         )
         Text(
