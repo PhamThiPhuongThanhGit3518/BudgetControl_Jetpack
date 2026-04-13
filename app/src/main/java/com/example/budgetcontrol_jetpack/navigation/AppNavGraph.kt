@@ -13,22 +13,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.budgetcontrol_jetpack.MyApp
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryEditorScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryListScreen
+import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryTransactionHistoryDialog
 import com.example.budgetcontrol_jetpack.ui.screen.dashboard.DashboardScreen
 import com.example.budgetcontrol_jetpack.ui.screen.transaction.TransactionEditorScreen
 import com.example.budgetcontrol_jetpack.ui.screen.transaction.TransactionListScreen
@@ -49,6 +52,8 @@ fun AppNavGraph() {
     val transactionContainer = remember { TransactionContainer(app.repositoryContainer) }
     val categoryContainer = remember { CategoryContainer(app.repositoryContainer) }
     val dashboardContainer = remember { DashboardContainer(app.repositoryContainer) }
+    var transactionEditorId by remember { mutableStateOf<Long?>(null) }
+    var categoryEditorId by remember { mutableStateOf<Long?>(null) }
 
     val bottomDestinations = listOf(
         BottomNavDestination(Destinations.HOME, "Trang chủ", Icons.Default.Home),
@@ -116,83 +121,54 @@ fun AppNavGraph() {
                 TransactionListScreen(
                     viewModel = vm,
                     onAddClick = {
-                        navController.navigate("${Destinations.TRANSACTION_EDITOR}/0")
+                        transactionEditorId = 0L
                     },
                     onEditClick = { id ->
-                        navController.navigate("${Destinations.TRANSACTION_EDITOR}/$id")
+                        transactionEditorId = id
                     }
-                )
-            }
-
-            composable(
-                route = "${Destinations.TRANSACTION_EDITOR}/{id}",
-                arguments = listOf(
-                    navArgument("id") {
-                        type = NavType.LongType
-                    }
-                )
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getLong("id") ?: 0L
-
-                val vm = remember {
-                    TransactionEditorViewModel(
-                        useCases = transactionContainer.useCases,
-                        categoryUseCases = categoryContainer.useCases
-                    )
-                }
-
-                LaunchedEffect(id) {
-                    vm.load(id)
-                }
-
-                TransactionEditorScreen(
-                    viewModel = vm,
-                    onDone = { navController.popBackStack() }
                 )
             }
 
             composable(Destinations.CATEGORIES) {
-                val vm = remember {
+                val categoryVm = remember {
                     CategoryListViewModel(
                         useCases = categoryContainer.useCases
                     )
                 }
-
-                CategoryListScreen(
-                    viewModel = vm,
-                    onAddClick = {
-                        navController.navigate("${Destinations.CATEGORY_EDITOR}/0")
-                    },
-                    onEditClick = { id ->
-                        navController.navigate("${Destinations.CATEGORY_EDITOR}/$id")
-                    }
-                )
-            }
-
-            composable(
-                route = "${Destinations.CATEGORY_EDITOR}/{id}",
-                arguments = listOf(
-                    navArgument("id") {
-                        type = NavType.LongType
-                    }
-                )
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getLong("id") ?: 0L
-
-                val vm = remember {
-                    CategoryEditorViewModel(
-                        useCases = categoryContainer.useCases
+                val transactionVm = remember {
+                    TransactionListViewModel(
+                        useCases = transactionContainer.useCases
                     )
                 }
+                var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+                val categoryState by categoryVm.uiState.collectAsState()
+                val transactionState by transactionVm.uiState.collectAsState()
 
-                LaunchedEffect(id) {
-                    vm.load(id)
-                }
-
-                CategoryEditorScreen(
-                    viewModel = vm,
-                    onDone = { navController.popBackStack() }
+                CategoryListScreen(
+                    viewModel = categoryVm,
+                    onAddClick = {
+                        categoryEditorId = 0L
+                    },
+                    onCategoryClick = { id ->
+                        selectedCategoryId = id
+                    },
+                    onEditClick = { id ->
+                        categoryEditorId = id
+                    }
                 )
+
+                val selectedCategory = categoryState.categories.firstOrNull {
+                    it.id == selectedCategoryId
+                }
+                if (selectedCategory != null) {
+                    CategoryTransactionHistoryDialog(
+                        category = selectedCategory,
+                        transactions = transactionState.transactions.filter {
+                            it.categoryId == selectedCategory.id
+                        },
+                        onDismiss = { selectedCategoryId = null }
+                    )
+                }
             }
 
             composable(Destinations.DASHBOARD) {
@@ -206,6 +182,43 @@ fun AppNavGraph() {
                     viewModel = vm
                 )
             }
+        }
+
+        transactionEditorId?.let { id ->
+            val vm = remember(id) {
+                TransactionEditorViewModel(
+                    useCases = transactionContainer.useCases,
+                    categoryUseCases = categoryContainer.useCases
+                )
+            }
+
+            LaunchedEffect(id) {
+                vm.load(id)
+            }
+
+            TransactionEditorScreen(
+                viewModel = vm,
+                onDone = { transactionEditorId = null },
+                onDismiss = { transactionEditorId = null }
+            )
+        }
+
+        categoryEditorId?.let { id ->
+            val vm = remember(id) {
+                CategoryEditorViewModel(
+                    useCases = categoryContainer.useCases
+                )
+            }
+
+            LaunchedEffect(id) {
+                vm.load(id)
+            }
+
+            CategoryEditorScreen(
+                viewModel = vm,
+                onDone = { categoryEditorId = null },
+                onDismiss = { categoryEditorId = null }
+            )
         }
     }
 }
