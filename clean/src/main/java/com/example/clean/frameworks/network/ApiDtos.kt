@@ -44,8 +44,6 @@ data class CategoryDto(
     val id: String,
     val name: String,
     val type: String,
-    val colorHex: String = "#9E9E9E",
-    val icon: String = "category",
     val isDefault: Boolean = false
 )
 
@@ -53,8 +51,6 @@ data class CategoryDto(
 data class CategoryRequestDto(
     val name: String,
     val type: String,
-    val colorHex: String,
-    val icon: String,
     val isDefault: Boolean = false
 )
 
