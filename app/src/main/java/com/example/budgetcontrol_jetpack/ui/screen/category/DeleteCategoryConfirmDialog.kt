@@ -24,11 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.budgetcontrol_jetpack.R
+import com.example.budgetcontrol_jetpack.ui.theme.BudgetControl_JetpackTheme
 
 @Composable
 fun DeleteCategoryConfirmDialog(
@@ -114,3 +116,15 @@ fun DeleteCategoryConfirmDialog(
 
 private val DeleteSoft = Color(0xFFFFE7EA)
 private val DeleteStrong = Color(0xFFE0465A)
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 640)
+@Composable
+private fun DeleteCategoryConfirmDialogPreview() {
+    BudgetControl_JetpackTheme(dynamicColor = false) {
+        DeleteCategoryConfirmDialog(
+            categoryName = "Ăn uống",
+            onDismiss = {},
+            onConfirm = {}
+        )
+    }
+}
