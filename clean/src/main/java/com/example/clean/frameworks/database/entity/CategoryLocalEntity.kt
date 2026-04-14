@@ -14,7 +14,5 @@ data class CategoryLocalEntity(
     val remoteId: String? = null,
     val name: String,
     val type: String,
-    val colorHex: String,
-    val icon: String,
     val isDefault: Boolean
 )
