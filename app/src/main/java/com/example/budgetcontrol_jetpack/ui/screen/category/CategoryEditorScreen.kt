@@ -28,10 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.budgetcontrol_jetpack.R
+import com.example.budgetcontrol_jetpack.ui.theme.BudgetControl_JetpackTheme
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryEditorViewModel
+import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryEditorUiState
 import com.example.clean.entities.CategoryType
 
 @Composable
@@ -41,6 +44,23 @@ fun CategoryEditorScreen(
     onDismiss: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    CategoryEditorContent(
+        uiState = uiState,
+        updateName = viewModel::updateName,
+        updateType = viewModel::updateType,
+        onSave = { viewModel.save(onDone) },
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
+private fun CategoryEditorContent(
+    uiState: CategoryEditorUiState,
+    updateName: (String) -> Unit,
+    updateType: (CategoryType) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit
+) {
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = Color.Black,
         unfocusedTextColor = Color.Black,
@@ -111,7 +131,7 @@ fun CategoryEditorScreen(
                         )
                         OutlinedTextField(
                             value = uiState.name,
-                            onValueChange = viewModel::updateName,
+                            onValueChange = updateName,
                             placeholder = {
                                 Text(stringResource(R.string.category_name_placeholder))
                             },
@@ -142,13 +162,13 @@ fun CategoryEditorScreen(
                                 CategoryTypeToggle(
                                     text = stringResource(R.string.category_type_income),
                                     selected = uiState.type == CategoryType.INCOME,
-                                    onClick = { viewModel.updateType(CategoryType.INCOME) },
+                                    onClick = { updateType(CategoryType.INCOME) },
                                     modifier = Modifier.weight(1f)
                                 )
                                 CategoryTypeToggle(
                                     text = stringResource(R.string.category_type_expense),
                                     selected = uiState.type == CategoryType.EXPENSE,
-                                    onClick = { viewModel.updateType(CategoryType.EXPENSE) },
+                                    onClick = { updateType(CategoryType.EXPENSE) },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -164,7 +184,7 @@ fun CategoryEditorScreen(
                     }
 
                     Button(
-                        onClick = { viewModel.save(onDone) },
+                        onClick = onSave,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 10.dp),
@@ -230,3 +250,20 @@ private val SectionText = Color(0xFF302B2F)
 private val TypeBackground = Color(0xFFE6ECF2)
 private val SelectedTypeText = Color(0xFFE63B61)
 private val UnselectedTypeText = Color(0xFF6C7584)
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 640)
+@Composable
+private fun CategoryEditorScreenPreview() {
+    BudgetControl_JetpackTheme(dynamicColor = false) {
+        CategoryEditorContent(
+            uiState = CategoryEditorUiState(
+                name = "Ăn uống",
+                type = CategoryType.INCOME
+            ),
+            updateName = {},
+            updateType = {},
+            onSave = {},
+            onDismiss = {}
+        )
+    }
+}
