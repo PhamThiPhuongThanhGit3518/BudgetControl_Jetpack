@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.budgetcontrol_jetpack.R
+import com.example.budgetcontrol_jetpack.ui.theme.BudgetControl_JetpackTheme
 
 @Composable
 fun AuthScreen(
@@ -331,3 +333,17 @@ private val AuthBackground = Color(0xFFF7F9FC)
 private val AccentBlue = Color(0xFF0F5697)
 private val PrimaryText = Color(0xFF20242C)
 private val MutedText = Color(0xFF707783)
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+private fun AuthScreenPreview() {
+    BudgetControl_JetpackTheme(dynamicColor = false) {
+        AuthScreen(
+            isLoading = false,
+            errorMessage = null,
+            onPhoneLogin = { _, _ -> },
+            onPhoneRegister = { _, _, _ -> },
+            onGoogleClick = {}
+        )
+    }
+}
