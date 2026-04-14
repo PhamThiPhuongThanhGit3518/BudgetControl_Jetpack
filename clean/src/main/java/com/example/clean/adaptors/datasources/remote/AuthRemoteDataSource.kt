@@ -7,7 +7,7 @@ import com.example.clean.frameworks.network.BudgetControlApi
 import com.example.clean.frameworks.network.FirebaseLoginRequestDto
 import kotlinx.coroutines.flow.Flow
 
-class AuthRepository(
+class AuthRemoteDataSource(
     private val api: BudgetControlApi,
     private val tokenStore: TokenStore,
     private val syncAfterLogin: suspend () -> Unit
