@@ -11,6 +11,8 @@ import com.example.clean.frameworks.network.ExpenseRatioDto
 import com.example.clean.frameworks.network.TransactionDto
 import com.example.clean.frameworks.network.TransactionRequestDto
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun CategoryDto.toLocal(existingId: Long = 0): CategoryLocalEntity {
     return CategoryLocalEntity(
@@ -43,7 +45,7 @@ fun TransactionDto.toLocal(categoryLocalId: Long, existingId: Long = 0): Transac
         type = type,
         categoryId = categoryLocalId,
         note = note,
-        createdAt = Instant.parse(occurredAt).toEpochMilli()
+        createdAt = parseRemoteInstant(occurredAt).toEpochMilli()
     )
 }
 
@@ -73,4 +75,12 @@ fun ExpenseRatioDto.toDomain(categoryLocalId: Long = 0): CategoryExpenseStat {
         totalAmount = totalAmount,
         ratio = ratio
     )
+}
+
+private fun parseRemoteInstant(value: String): Instant {
+    return runCatching {
+        Instant.parse(value)
+    }.getOrElse {
+        LocalDateTime.parse(value).toInstant(ZoneOffset.UTC)
+    }
 }
