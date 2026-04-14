@@ -25,8 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.budgetcontrol_jetpack.R
+import com.example.budgetcontrol_jetpack.ui.theme.BudgetControl_JetpackTheme
 import com.example.clean.entities.Category
 import com.example.clean.entities.CategoryType
 
@@ -113,4 +115,21 @@ private val IncomeSoft = Color(0xFFCFEFD3)
 private val IncomeText = Color(0xFF2F8F45)
 private val ExpenseSoft = Color(0xFFFFC9CF)
 private val ExpenseText = Color(0xFFE53935)
-private val DarkGrayText = Color(0xFF4F4A55)
+
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+private fun CategoryItemPreview() {
+    BudgetControl_JetpackTheme(dynamicColor = false) {
+        CategoryItem(
+            category = Category(
+                id = 1,
+                name = "Ăn uống",
+                type = CategoryType.EXPENSE,
+                isDefault = false
+            ),
+            onClick = {},
+            onEditClick = {},
+            onDeleteClick = {}
+        )
+    }
+}
