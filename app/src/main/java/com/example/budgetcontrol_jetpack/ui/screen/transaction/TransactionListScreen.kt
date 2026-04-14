@@ -253,14 +253,6 @@ private fun HomeHeader(
                 modifier = Modifier.size(34.dp)
             )
         }
-
-        IconButton(onClick = {}) {
-            Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = "Thông báo",
-                tint = Color.Black
-            )
-        }
     }
 }
 
