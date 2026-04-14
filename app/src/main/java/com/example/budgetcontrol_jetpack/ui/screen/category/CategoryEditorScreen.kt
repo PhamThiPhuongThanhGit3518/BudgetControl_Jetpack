@@ -1,32 +1,39 @@
 package com.example.budgetcontrol_jetpack.ui.screen.category
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.budgetcontrol_jetpack.R
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryEditorViewModel
 import com.example.clean.entities.CategoryType
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryEditorScreen(
     viewModel: CategoryEditorViewModel,
@@ -49,98 +56,177 @@ fun CategoryEditorScreen(
     )
 
     Dialog(onDismissRequest = onDismiss) {
-        androidx.compose.material3.Surface(
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(22.dp),
             color = SheetBackground,
-            shadowElevation = 8.dp
+            shadowElevation = 12.dp
         ) {
             Column(
-                modifier = Modifier.padding(22.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = stringResource(
-                        if (uiState.id == 0L) {
-                            R.string.category_editor_add_title
-                        } else {
-                            R.string.category_editor_edit_title
-                        }
-                    ),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF333039)
-                )
-
-                OutlinedTextField(
-                    value = uiState.name,
-                    onValueChange = viewModel::updateName,
-                    label = { Text(stringResource(R.string.category_name_label)) },
-                    colors = fieldColors,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = uiState.type == CategoryType.EXPENSE,
-                        onClick = { viewModel.updateType(CategoryType.EXPENSE) },
-                        label = { Text(stringResource(R.string.type_expense_short)) }
-                    )
-                    FilterChip(
-                        selected = uiState.type == CategoryType.INCOME,
-                        onClick = { viewModel.updateType(CategoryType.INCOME) },
-                        label = { Text(stringResource(R.string.type_income_short)) }
-                    )
-                }
-
-                OutlinedTextField(
-                    value = uiState.colorHex,
-                    onValueChange = viewModel::updateColor,
-                    label = { Text(stringResource(R.string.category_color_hex_label)) },
-                    placeholder = { Text(stringResource(R.string.category_color_hex_placeholder)) },
-                    colors = fieldColors,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = uiState.icon,
-                    onValueChange = viewModel::updateIcon,
-                    label = { Text(stringResource(R.string.category_icon_name_label)) },
-                    placeholder = { Text(stringResource(R.string.category_icon_name_placeholder)) },
-                    colors = fieldColors,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (!uiState.errorMessage.isNullOrBlank()) {
-                    Text(
-                        text = uiState.errorMessage.orEmpty(),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                Button(
-                    onClick = { viewModel.save(onDone) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0F5697),
-                        contentColor = Color.White
-                    )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(HeaderBlue)
+                        .padding(start = 16.dp, top = 12.dp, end = 10.dp, bottom = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        stringResource(
+                        text = stringResource(
                             if (uiState.id == 0L) {
                                 R.string.category_editor_add_title
                             } else {
-                                R.string.category_save_changes
+                                R.string.category_editor_edit_title
                             }
-                        )
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold
                     )
+
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.close),
+                            tint = Color.White
+                        )
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(R.string.category_name_label),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = SectionText,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        OutlinedTextField(
+                            value = uiState.name,
+                            onValueChange = viewModel::updateName,
+                            placeholder = {
+                                Text(stringResource(R.string.category_name_placeholder))
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
+                            colors = fieldColors,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(
+                            text = stringResource(R.string.category_transaction_type_label),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = SectionText,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(TypeBackground, RoundedCornerShape(12.dp))
+                                .padding(4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                CategoryTypeToggle(
+                                    text = stringResource(R.string.category_type_income),
+                                    selected = uiState.type == CategoryType.INCOME,
+                                    onClick = { viewModel.updateType(CategoryType.INCOME) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                CategoryTypeToggle(
+                                    text = stringResource(R.string.category_type_expense),
+                                    selected = uiState.type == CategoryType.EXPENSE,
+                                    onClick = { viewModel.updateType(CategoryType.EXPENSE) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+
+                    if (!uiState.errorMessage.isNullOrBlank()) {
+                        Text(
+                            text = uiState.errorMessage.orEmpty(),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    Button(
+                        onClick = { viewModel.save(onDone) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ActionBlue,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            stringResource(
+                                if (uiState.id == 0L) {
+                                    R.string.category_save
+                                } else {
+                                    R.string.category_save_changes
+                                }
+                            )
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-private val SheetBackground = Color(0xFFFBF5FD)
-private val FieldBorder = Color(0xFF8E8794)
-private val FieldLabel = Color(0xFF6F6874)
+@Composable
+private fun CategoryTypeToggle(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) Color.White else Color.Transparent,
+            contentColor = if (selected) SelectedTypeText else UnselectedTypeText
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            disabledElevation = 0.dp
+        )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
+        )
+    }
+}
+
+private val SheetBackground = Color(0xFFEDE6F1)
+private val HeaderBlue = Color(0xFF4E86BF)
+private val ActionBlue = Color(0xFF3A8CE6)
+private val FieldBorder = Color(0xFF6A5F68)
+private val FieldLabel = Color(0xFF7D7480)
+private val SectionText = Color(0xFF302B2F)
+private val TypeBackground = Color(0xFFE6ECF2)
+private val SelectedTypeText = Color(0xFFE63B61)
+private val UnselectedTypeText = Color(0xFF6C7584)
