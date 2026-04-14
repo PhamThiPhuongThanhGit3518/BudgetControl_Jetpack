@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -72,6 +73,15 @@ class DashboardViewModel(
                         stats = stats
                     )
                 }
+            }.catch {
+                val currentFilter = filterFlow.value
+                val range = currentFilter.toDateRange()
+                _uiState.value = DashboardUiState(
+                    period = currentFilter.period,
+                    periodLabel = range.label,
+                    summary = DashboardSummary(0.0, 0.0, 0.0),
+                    stats = emptyList()
+                )
             }.collect { state ->
                 _uiState.value = state
             }
