@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
             entity = CategoryLocalEntity::class,
             parentColumns = ["id"],
             childColumns = ["categoryId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
