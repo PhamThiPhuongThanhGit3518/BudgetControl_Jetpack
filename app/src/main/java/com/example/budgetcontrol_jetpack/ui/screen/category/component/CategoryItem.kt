@@ -94,14 +94,11 @@ fun CategoryItem(
                 )
             }
 
-            IconButton(
-                onClick = onDeleteClick,
-                enabled = !category.isDefault
-            ) {
+            IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = if (category.isDefault) "Mặc định" else "Xóa",
-                    tint = if (category.isDefault) Color(0xFFB8B5BE) else ExpenseText
+                    contentDescription = "Xóa",
+                    tint = ExpenseText
                 )
             }
         }
