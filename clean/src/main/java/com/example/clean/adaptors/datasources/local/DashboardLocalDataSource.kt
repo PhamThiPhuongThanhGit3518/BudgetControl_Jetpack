@@ -1,4 +1,4 @@
-package com.example.clean.adaptors.datasources.local.datasource
+package com.example.clean.adaptors.datasources.local
 
 import com.example.clean.frameworks.database.dao.DashboardDao
 
