@@ -4,6 +4,7 @@ object Destinations {
     const val AUTH = "auth"
     const val HOME = "home"
     const val TRANSACTIONS = "transactions"
+    const val TRANSACTION_HISTORY = "transaction_history"
     const val TRANSACTION_EDITOR = "transaction_editor"
     const val CATEGORIES = "categories"
     const val CATEGORY_EDITOR = "category_editor"
