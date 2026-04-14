@@ -28,4 +28,6 @@ class TransactionLocalDataSource(
     suspend fun getByRemoteId(remoteId: String): TransactionLocalEntity? = dao.getByRemoteId(remoteId)
 
     suspend fun clear() = dao.clear()
+
+    suspend fun deleteByCategoryId(categoryId: Long): Int = dao.deleteByCategoryId(categoryId)
 }
