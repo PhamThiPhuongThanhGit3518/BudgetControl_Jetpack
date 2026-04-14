@@ -1,11 +1,12 @@
 package com.example.clean.adaptors.repositories
 
-import com.example.clean.adaptors.datasources.local.datasource.CategoryLocalDataSource
+import com.example.clean.adaptors.datasources.local.CategoryLocalDataSource
+import com.example.clean.adaptors.datasources.remote.CategoryRemoteDataSource
 import com.example.clean.adaptors.mapper.CategoryMapper
 import com.example.clean.adaptors.mapper.toLocal
 import com.example.clean.adaptors.mapper.toRequest
 import com.example.clean.entities.Category
-import com.example.clean.frameworks.network.BudgetControlApi
+import com.example.clean.frameworks.network.CategoryDto
 import com.example.clean.repositories.CategoryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -13,12 +14,12 @@ import kotlinx.coroutines.flow.map
 class CategoryRepositoryImpl(
     private val localDataSource: CategoryLocalDataSource,
     private val mapper: CategoryMapper,
-    private val api: BudgetControlApi? = null
+    private val remoteDataSource: CategoryRemoteDataSource? = null
 ) : CategoryRepository {
 
     override suspend fun add(category: Category): Long {
         val local = mapper.toLocal(category)
-        val remote = api?.createCategory(local.toRequest())
+        val remote = remoteDataSource?.create(local.toRequest())
         return if (remote != null) {
             upsertRemote(remote)
         } else {
@@ -30,8 +31,8 @@ class CategoryRepositoryImpl(
         val current = localDataSource.getById(category.id)
         val local = mapper.toLocal(category).copy(remoteId = current?.remoteId)
         val remoteId = current?.remoteId
-        if (api != null && remoteId != null) {
-            upsertRemote(api.updateCategory(remoteId, local.toRequest()))
+        if (remoteDataSource != null && remoteId != null) {
+            upsertRemote(remoteDataSource.update(remoteId, local.toRequest()))
         } else {
             localDataSource.update(local)
         }
@@ -40,8 +41,8 @@ class CategoryRepositoryImpl(
     override suspend fun delete(category: Category) {
         val current = localDataSource.getById(category.id)
         val remoteId = current?.remoteId
-        if (api != null && remoteId != null) {
-            api.deleteCategory(remoteId)
+        if (remoteDataSource != null && remoteId != null) {
+            remoteDataSource.delete(remoteId)
         }
         localDataSource.delete(mapper.toLocal(category).copy(remoteId = remoteId))
     }
@@ -67,7 +68,7 @@ class CategoryRepositoryImpl(
     }
 
     suspend fun syncFromRemote() {
-        val remoteItems = api?.listCategories()?.items ?: return
+        val remoteItems = remoteDataSource?.list() ?: return
         remoteItems.forEach { upsertRemote(it) }
     }
 
@@ -75,7 +76,7 @@ class CategoryRepositoryImpl(
         localDataSource.clear()
     }
 
-    private suspend fun upsertRemote(remote: com.example.clean.frameworks.network.CategoryDto): Long {
+    private suspend fun upsertRemote(remote: CategoryDto): Long {
         val existing = localDataSource.getByRemoteId(remote.id)
         return localDataSource.insert(remote.toLocal(existing?.id ?: 0))
     }
