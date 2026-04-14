@@ -31,6 +31,9 @@ interface TransactionDao {
     @Query("DELETE FROM transactions")
     suspend fun clear()
 
+    @Query("DELETE FROM transactions WHERE categoryId = :categoryId")
+    suspend fun deleteByCategoryId(categoryId: Long): Int
+
     @Query("""
         SELECT * FROM transactions
         WHERE createdAt BETWEEN :start AND :end
