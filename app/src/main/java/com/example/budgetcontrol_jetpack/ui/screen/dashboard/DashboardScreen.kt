@@ -2,6 +2,7 @@ package com.example.budgetcontrol_jetpack.ui.screen.dashboard
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +46,9 @@ import java.util.Locale
 
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel
+    viewModel: DashboardViewModel,
+    onIncomeClick: () -> Unit,
+    onExpenseClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     DashboardScreenContent(
@@ -54,7 +57,9 @@ fun DashboardScreen(
         onMonthClick = { viewModel.updatePeriod(DatePeriod.MONTH) },
         onYearClick = { viewModel.updatePeriod(DatePeriod.YEAR) },
         onPrevious = viewModel::movePrevious,
-        onNext = viewModel::moveNext
+        onNext = viewModel::moveNext,
+        onIncomeClick = onIncomeClick,
+        onExpenseClick = onExpenseClick
     )
 }
 
@@ -65,7 +70,9 @@ private fun DashboardScreenContent(
     onMonthClick: () -> Unit,
     onYearClick: () -> Unit,
     onPrevious: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onIncomeClick: () -> Unit,
+    onExpenseClick: () -> Unit
 ) {
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"))
 
@@ -143,13 +150,15 @@ private fun DashboardScreenContent(
                     title = stringResource(R.string.dashboard_total_income),
                     value = currencyFormatter.format(uiState.summary.totalIncome),
                     color = Color(0xFF4CAF50),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    onClick = onIncomeClick
                 )
                 StatCard(
                     title = stringResource(R.string.dashboard_total_expense),
                     value = currencyFormatter.format(uiState.summary.totalExpense),
                     color = Color(0xFFF44336),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    onClick = onExpenseClick
                 )
             }
 
@@ -199,10 +208,17 @@ private fun StatCard(
     title: String,
     value: String,
     color: Color = Color(0xFF2A2D34),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.then(
+            if (onClick != null) {
+                Modifier.clickable(onClick = onClick)
+            } else {
+                Modifier
+            }
+        ),
         shape = MaterialTheme.shapes.medium,
         color = Color.White,
         shadowElevation = 1.dp
@@ -325,7 +341,9 @@ private fun DashboardScreenPreview() {
             onMonthClick = {},
             onYearClick = {},
             onPrevious = {},
-            onNext = {}
+            onNext = {},
+            onIncomeClick = {},
+            onExpenseClick = {}
         )
     }
 }
