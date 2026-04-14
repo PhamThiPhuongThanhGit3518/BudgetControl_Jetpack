@@ -10,7 +10,7 @@ class DeleteCategoryUseCase(
         require(category.id > 0) { "ID danh mục không hợp lệ" }
 
         val count = repository.countTransactionsByCategoryId(category.id)
-        require(count == 0) { "Danh mục đang được sử dụng, không thể xóa" }
+        require(count == 0) { "Danh mục đang có dữ liệu, không thể xóa" }
 
         repository.delete(category)
     }
