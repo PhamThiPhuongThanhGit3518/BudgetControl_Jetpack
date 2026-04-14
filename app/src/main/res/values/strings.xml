@@ -60,6 +60,7 @@
     <string name="category_transaction_history_title">Giao dịch - %1$s</string>
     <string name="transaction_empty">Chưa có giao dịch nào</string>
     <string name="close">Đóng</string>
+    <string name="back">Quay lại</string>
     <string name="transaction_add">Thêm giao dịch mới</string>
     <string name="transaction_category_label">Danh mục</string>
     <string name="transaction_category_placeholder">Chọn danh mục</string>
@@ -71,6 +72,12 @@
     <string name="transaction_total_balance">TỔNG TIỀN</string>
     <string name="transaction_history_title">Lịch sử giao dịch</string>
     <string name="transaction_header_account">Tài khoản</string>
+    <string name="transaction_edit">Sửa</string>
+    <string name="transaction_delete">Xóa</string>
+    <string name="delete_transaction_title">Xóa giao dịch?</string>
+    <string name="delete_transaction_message">"%1$s" sẽ bị xóa khỏi lịch sử giao dịch. Hành động này không thể hoàn tác.</string>
+    <string name="delete_transaction_keep">Giữ lại</string>
+    <string name="delete_transaction_confirm">Xóa</string>
     <string name="summary_income_title">THU NHẬP</string>
     <string name="summary_expense_title">CHI TIÊU</string>
 </resources>
