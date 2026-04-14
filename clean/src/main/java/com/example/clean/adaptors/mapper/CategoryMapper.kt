@@ -12,8 +12,6 @@ class CategoryMapper : Mapper<CategoryLocalEntity, Category> {
             id = local.id,
             name = local.name,
             type = CategoryType.valueOf(local.type),
-            colorHex = local.colorHex,
-            icon = local.icon,
             isDefault = local.isDefault
         )
     }
@@ -24,8 +22,6 @@ class CategoryMapper : Mapper<CategoryLocalEntity, Category> {
             remoteId = null,
             name = domain.name,
             type = domain.type.name,
-            colorHex = domain.colorHex,
-            icon = domain.icon,
             isDefault = domain.isDefault
         )
     }
