@@ -117,11 +117,13 @@ fun DashboardScreen(
                 StatCard(
                     title = "Tổng thu",
                     value = currencyFormatter.format(uiState.summary.totalIncome),
+                    color = Color(0xFF4CAF50),
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     title = "Tổng chi",
                     value = currencyFormatter.format(uiState.summary.totalExpense),
+                    color = Color(0xFFF44336),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -171,6 +173,7 @@ fun DashboardScreen(
 private fun StatCard(
     title: String,
     value: String,
+    color: Color = Color(0xFF2A2D34),
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -186,7 +189,7 @@ private fun StatCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
-                color = Color(0xFF2A2D34)
+                color = color
             )
             Text(
                 text = value,
