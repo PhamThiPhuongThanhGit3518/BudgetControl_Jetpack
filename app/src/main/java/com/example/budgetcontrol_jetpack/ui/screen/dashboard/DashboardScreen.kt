@@ -30,7 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.budgetcontrol_jetpack.R
 import com.example.budgetcontrol_jetpack.viewmodel.dashboard.DashboardViewModel
 import com.example.clean.entities.CategoryExpenseStat
 import com.example.clean.entities.DatePeriod
@@ -53,7 +55,7 @@ fun DashboardScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Thống kê",
+                text = stringResource(R.string.dashboard_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.Black
             )
@@ -62,17 +64,17 @@ fun DashboardScreen(
                 FilterChip(
                     selected = uiState.period == DatePeriod.WEEK,
                     onClick = { viewModel.updatePeriod(DatePeriod.WEEK) },
-                    label = { Text("Tuần") }
+                    label = { Text(stringResource(R.string.dashboard_period_week)) }
                 )
                 FilterChip(
                     selected = uiState.period == DatePeriod.MONTH,
                     onClick = { viewModel.updatePeriod(DatePeriod.MONTH) },
-                    label = { Text("Tháng") }
+                    label = { Text(stringResource(R.string.dashboard_period_month)) }
                 )
                 FilterChip(
                     selected = uiState.period == DatePeriod.YEAR,
                     onClick = { viewModel.updatePeriod(DatePeriod.YEAR) },
-                    label = { Text("Năm") }
+                    label = { Text(stringResource(R.string.dashboard_period_year)) }
                 )
             }
 
@@ -92,7 +94,7 @@ fun DashboardScreen(
                     IconButton(onClick = viewModel::movePrevious) {
                         Icon(
                             imageVector = Icons.Default.ChevronLeft,
-                            contentDescription = "Thời gian trước",
+                            contentDescription = stringResource(R.string.dashboard_previous_period),
                             tint = Color.Black
                         )
                     }
@@ -106,7 +108,7 @@ fun DashboardScreen(
                     IconButton(onClick = viewModel::moveNext) {
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
-                            contentDescription = "Thời gian sau",
+                            contentDescription = stringResource(R.string.dashboard_next_period),
                             tint = Color.Black
                         )
                     }
@@ -115,13 +117,13 @@ fun DashboardScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(
-                    title = "Tổng thu",
+                    title = stringResource(R.string.dashboard_total_income),
                     value = currencyFormatter.format(uiState.summary.totalIncome),
                     color = Color(0xFF4CAF50),
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    title = "Tổng chi",
+                    title = stringResource(R.string.dashboard_total_expense),
                     value = currencyFormatter.format(uiState.summary.totalExpense),
                     color = Color(0xFFF44336),
                     modifier = Modifier.weight(1f)
@@ -129,7 +131,7 @@ fun DashboardScreen(
             }
 
             Text(
-                text = "Chi tiêu theo danh mục",
+                text = stringResource(R.string.dashboard_expense_by_category),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color(0xFF000000)
             )
@@ -147,7 +149,7 @@ fun DashboardScreen(
                             .height(220.dp)
                             .padding(16.dp)
                     ) {
-                        Text("Chưa có dữ liệu")
+                        Text(stringResource(R.string.dashboard_no_data))
                     }
                 } else {
                     Column(

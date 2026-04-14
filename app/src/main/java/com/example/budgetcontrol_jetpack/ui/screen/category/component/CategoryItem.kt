@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.budgetcontrol_jetpack.R
 import com.example.clean.entities.Category
 import com.example.clean.entities.CategoryType
 
@@ -80,7 +82,9 @@ fun CategoryItem(
                     color = Color(0xFF222222)
                 )
                 Text(
-                    text = if (isIncome) "Thu nhập" else "Chi tiêu",
+                    text = stringResource(
+                        if (isIncome) R.string.category_type_income else R.string.category_type_expense
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isIncome) IncomeText else ExpenseText
                 )
@@ -89,7 +93,7 @@ fun CategoryItem(
             IconButton(onClick = onEditClick) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Sửa",
+                    contentDescription = stringResource(R.string.category_edit),
                     tint = Color(0xFF1E9BF0)
                 )
             }
@@ -97,7 +101,7 @@ fun CategoryItem(
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Xóa",
+                    contentDescription = stringResource(R.string.category_delete),
                     tint = ExpenseText
                 )
             }

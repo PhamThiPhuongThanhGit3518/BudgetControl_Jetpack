@@ -41,11 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.budgetcontrol_jetpack.R
 
 @Composable
 fun AuthScreen(
@@ -78,16 +80,18 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(28.dp))
 
             Text(
-                text = if (isRegisterMode) "Tạo tài khoản" else "Đăng nhập",
+                text = stringResource(
+                    if (isRegisterMode) R.string.auth_create_account else R.string.auth_login
+                ),
                 style = MaterialTheme.typography.headlineMedium,
                 color = PrimaryText,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = if (isRegisterMode) {
-                    "Bắt đầu quản lý chi tiêu cá nhân"
+                    stringResource(R.string.auth_start_manage)
                 } else {
-                    "Chào mừng bạn quay lại"
+                    stringResource(R.string.auth_welcome_back)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MutedText,
@@ -105,7 +109,7 @@ fun AuthScreen(
                         value = fullName,
                         onValueChange = { fullName = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Họ và tên") },
+                        label = { Text(stringResource(R.string.auth_full_name)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Person,
@@ -120,7 +124,7 @@ fun AuthScreen(
                     value = phoneNumber,
                     onValueChange = { phoneNumber = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Số điện thoại") },
+                    label = { Text(stringResource(R.string.auth_phone_number)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Phone,
@@ -135,7 +139,7 @@ fun AuthScreen(
                     value = password,
                     onValueChange = { password = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Mật khẩu") },
+                    label = { Text(stringResource(R.string.auth_password)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Lock,
@@ -151,9 +155,9 @@ fun AuthScreen(
                                     Icons.Default.Visibility
                                 },
                                 contentDescription = if (passwordVisible) {
-                                    "Ẩn mật khẩu"
+                                    stringResource(R.string.auth_hide_password)
                                 } else {
-                                    "Hiện mật khẩu"
+                                    stringResource(R.string.auth_show_password)
                                 }
                             )
                         }
@@ -196,7 +200,9 @@ fun AuthScreen(
                     )
                 } else {
                     Text(
-                        text = if (isRegisterMode) "Đăng ký" else "Đăng nhập",
+                        text = stringResource(
+                            if (isRegisterMode) R.string.auth_register else R.string.auth_login
+                        ),
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
@@ -236,16 +242,16 @@ fun AuthScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "G",
+                        text = stringResource(R.string.auth_google_mark),
                         color = Color(0xFF4285F4),
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Text(
                     text = if (isRegisterMode) {
-                        "Đăng ký bằng Google"
+                        stringResource(R.string.auth_register_with_google)
                     } else {
-                        "Đăng nhập bằng Google"
+                        stringResource(R.string.auth_login_with_google)
                     },
                     modifier = Modifier.padding(start = 10.dp)
                 )
@@ -257,15 +263,17 @@ fun AuthScreen(
             ) {
                 Text(
                     text = if (isRegisterMode) {
-                        "Đã có tài khoản?"
+                        stringResource(R.string.auth_already_have_account)
                     } else {
-                        "Chưa có tài khoản?"
+                        stringResource(R.string.auth_do_not_have_account)
                     },
                     color = MutedText
                 )
                 TextButton(onClick = { isRegisterMode = !isRegisterMode }) {
                     Text(
-                        text = if (isRegisterMode) "Đăng nhập" else "Đăng ký",
+                        text = stringResource(
+                            if (isRegisterMode) R.string.auth_login else R.string.auth_register
+                        ),
                         color = AccentBlue,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -284,7 +292,7 @@ private fun AppMark() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "BC",
+            text = stringResource(R.string.auth_app_mark),
             color = Color.White,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
@@ -306,7 +314,7 @@ private fun DividerText() {
                 .background(Color(0xFFE0E3E8))
         )
         Text(
-            text = "hoặc",
+            text = stringResource(R.string.auth_or),
             color = MutedText,
             style = MaterialTheme.typography.bodySmall
         )

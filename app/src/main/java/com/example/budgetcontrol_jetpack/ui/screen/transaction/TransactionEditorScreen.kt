@@ -33,8 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.budgetcontrol_jetpack.R
 import com.example.budgetcontrol_jetpack.viewmodel.transaction.TransactionEditorViewModel
 import com.example.clean.entities.TransactionType
 
@@ -89,7 +91,7 @@ fun TransactionEditorScreen(
             }
 
             Text(
-                text = "Thêm giao dịch mới",
+                text = stringResource(R.string.transaction_add),
                 style = MaterialTheme.typography.titleLarge,
                 color = Color(0xFF333039)
             )
@@ -98,13 +100,13 @@ fun TransactionEditorScreen(
                 FilterChip(
                     selected = uiState.type == TransactionType.EXPENSE,
                     onClick = { viewModel.updateType(TransactionType.EXPENSE) },
-                    label = { Text("Chi") }
+                    label = { Text(stringResource(R.string.type_expense_short)) }
                 )
 
                 FilterChip(
                     selected = uiState.type == TransactionType.INCOME,
                     onClick = { viewModel.updateType(TransactionType.INCOME) },
-                    label = { Text("Thu") }
+                    label = { Text(stringResource(R.string.type_income_short)) }
                 )
             }
 
@@ -118,8 +120,8 @@ fun TransactionEditorScreen(
                     value = selectedCategory?.name ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Danh mục") },
-                    placeholder = { Text("Chọn danh mục") },
+                    label = { Text(stringResource(R.string.transaction_category_label)) },
+                    placeholder = { Text(stringResource(R.string.transaction_category_placeholder)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCategoryExpanded)
                     },
@@ -160,8 +162,8 @@ fun TransactionEditorScreen(
             OutlinedTextField(
                 value = uiState.amount,
                 onValueChange = viewModel::updateAmount,
-                label = { Text("Số tiền (VNĐ)") },
-                placeholder = { Text("1.000.000") },
+                label = { Text(stringResource(R.string.transaction_amount_label)) },
+                placeholder = { Text(stringResource(R.string.transaction_amount_placeholder)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = fieldColors,
                 modifier = Modifier.fillMaxWidth()
@@ -170,7 +172,7 @@ fun TransactionEditorScreen(
             OutlinedTextField(
                 value = uiState.note,
                 onValueChange = viewModel::updateNote,
-                label = { Text("Ghi chú") },
+                label = { Text(stringResource(R.string.transaction_note_label)) },
                 colors = fieldColors,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -193,7 +195,7 @@ fun TransactionEditorScreen(
                     contentColor = Color.White
                 )
             ) {
-                Text("Lưu giao dịch")
+                Text(stringResource(R.string.transaction_save))
             }
         }
     }

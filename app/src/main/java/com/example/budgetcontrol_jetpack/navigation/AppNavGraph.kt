@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -106,7 +107,7 @@ fun AppNavGraph() {
                 .getResult(ApiException::class.java)
             val googleIdToken = account.idToken
             if (googleIdToken.isNullOrBlank()) {
-                authVm.showError("Google chưa trả ID token. Kiểm tra Web client ID trong Firebase.")
+                authVm.showError(context.getString(R.string.google_missing_id_token))
                 return@rememberLauncherForActivityResult
             }
             val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
@@ -116,29 +117,43 @@ fun AppNavGraph() {
                         ?.addOnSuccessListener { tokenResult ->
                             val token = tokenResult.token
                             if (token.isNullOrBlank()) {
-                                authVm.showError("Không lấy được Firebase token")
+                                authVm.showError(context.getString(R.string.google_missing_firebase_token))
                             } else {
                                 authVm.firebaseLogin(token)
                             }
                         }
                         ?.addOnFailureListener {
-                            authVm.showError(it.message ?: "Không lấy được Firebase token")
+                            authVm.showError(
+                                it.message ?: context.getString(R.string.google_missing_firebase_token)
+                            )
                         }
                 }
                 .addOnFailureListener {
-                    authVm.showError(it.message ?: "Đăng nhập Google thất bại")
+                    authVm.showError(it.message ?: context.getString(R.string.google_login_failed))
                 }
         }.onFailure {
-            authVm.showError(it.message ?: "Đăng nhập Google thất bại")
+            authVm.showError(it.message ?: context.getString(R.string.google_login_failed))
         }
     }
     var transactionEditorId by remember { mutableStateOf<Long?>(null) }
     var categoryEditorId by remember { mutableStateOf<Long?>(null) }
 
     val bottomDestinations = listOf(
-        BottomNavDestination(Destinations.HOME, "Trang chủ", Icons.Default.Home),
-        BottomNavDestination(Destinations.DASHBOARD, "Thống kê", Icons.Default.BarChart),
-        BottomNavDestination(Destinations.CATEGORIES, "Danh mục", Icons.Default.Category)
+        BottomNavDestination(
+            Destinations.HOME,
+            context.getString(R.string.nav_home),
+            Icons.Default.Home
+        ),
+        BottomNavDestination(
+            Destinations.DASHBOARD,
+            context.getString(R.string.nav_dashboard),
+            Icons.Default.BarChart
+        ),
+        BottomNavDestination(
+            Destinations.CATEGORIES,
+            context.getString(R.string.nav_categories),
+            Icons.Default.Category
+        )
     )
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination
@@ -242,7 +257,9 @@ fun AppNavGraph() {
                         },
                         onGoogleClick = {
                             if (googleWebClientId == "YOUR_WEB_CLIENT_ID") {
-                                authVm.showError("Chưa cấu hình Google Web client ID trong strings.xml")
+                                authVm.showError(
+                                    context.getString(R.string.google_web_client_not_configured)
+                                )
                             } else {
                                 googleLauncher.launch(googleSignInClient.signInIntent)
                             }
@@ -403,12 +420,14 @@ private fun AccountDrawerContent(
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Tài khoản",
+                        text = stringResource(R.string.drawer_account),
                         style = MaterialTheme.typography.labelMedium,
                         color = Color(0xFF707783)
                     )
                     Text(
-                        text = displayName.ifBlank { "BudgetControl" },
+                        text = displayName.ifBlank {
+                            stringResource(R.string.drawer_default_display_name)
+                        },
                         style = MaterialTheme.typography.titleMedium,
                         color = Color(0xFF545454),
                         fontWeight = FontWeight.SemiBold
@@ -433,7 +452,7 @@ private fun AccountDrawerContent(
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = "Đăng xuất",
+                    text = stringResource(R.string.drawer_logout),
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

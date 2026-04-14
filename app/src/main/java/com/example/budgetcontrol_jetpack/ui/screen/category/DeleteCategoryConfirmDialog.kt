@@ -23,10 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.budgetcontrol_jetpack.R
 
 @Composable
 fun DeleteCategoryConfirmDialog(
@@ -65,13 +67,13 @@ fun DeleteCategoryConfirmDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Xóa danh mục?",
+                        text = stringResource(R.string.delete_category_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF2E2A32)
                     )
                     Text(
-                        text = "\"$categoryName\" sẽ bị xóa khỏi danh sách. Hành động này không thể hoàn tác.",
+                        text = stringResource(R.string.delete_category_message, categoryName),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF6E6873),
                         textAlign = TextAlign.Center
@@ -90,7 +92,7 @@ fun DeleteCategoryConfirmDialog(
                             contentColor = Color(0xFF5D5764)
                         )
                     ) {
-                        Text("Giữ lại")
+                        Text(stringResource(R.string.delete_category_keep))
                     }
 
                     Button(
@@ -102,7 +104,7 @@ fun DeleteCategoryConfirmDialog(
                             contentColor = Color.White
                         )
                     ) {
-                        Text("Xóa")
+                        Text(stringResource(R.string.delete_category_confirm))
                     }
                 }
             }

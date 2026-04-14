@@ -29,7 +29,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.budgetcontrol_jetpack.R
 import com.example.budgetcontrol_jetpack.ui.screen.category.component.CategoryItem
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryListViewModel
 import com.example.clean.entities.Category
@@ -88,7 +90,7 @@ fun CategoryListScreen(
                             contentDescription = null
                         )
                         Text(
-                            text = "  Thêm danh mục mới",
+                            text = stringResource(R.string.category_list_add_new),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -97,7 +99,7 @@ fun CategoryListScreen(
                 if (uiState.categories.isEmpty()) {
                     item {
                         Text(
-                            text = "Chưa có danh mục nào",
+                            text = stringResource(R.string.category_list_empty),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }

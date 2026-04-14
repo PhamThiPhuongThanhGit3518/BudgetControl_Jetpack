@@ -19,8 +19,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.budgetcontrol_jetpack.R
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryEditorViewModel
 import com.example.clean.entities.CategoryType
 
@@ -58,7 +60,13 @@ fun CategoryEditorScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    text = if (uiState.id == 0L) "Thêm danh mục" else "Sửa danh mục",
+                    text = stringResource(
+                        if (uiState.id == 0L) {
+                            R.string.category_editor_add_title
+                        } else {
+                            R.string.category_editor_edit_title
+                        }
+                    ),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color(0xFF333039)
                 )
@@ -66,7 +74,7 @@ fun CategoryEditorScreen(
                 OutlinedTextField(
                     value = uiState.name,
                     onValueChange = viewModel::updateName,
-                    label = { Text("Tên danh mục") },
+                    label = { Text(stringResource(R.string.category_name_label)) },
                     colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -75,20 +83,20 @@ fun CategoryEditorScreen(
                     FilterChip(
                         selected = uiState.type == CategoryType.EXPENSE,
                         onClick = { viewModel.updateType(CategoryType.EXPENSE) },
-                        label = { Text("Chi") }
+                        label = { Text(stringResource(R.string.type_expense_short)) }
                     )
                     FilterChip(
                         selected = uiState.type == CategoryType.INCOME,
                         onClick = { viewModel.updateType(CategoryType.INCOME) },
-                        label = { Text("Thu") }
+                        label = { Text(stringResource(R.string.type_income_short)) }
                     )
                 }
 
                 OutlinedTextField(
                     value = uiState.colorHex,
                     onValueChange = viewModel::updateColor,
-                    label = { Text("Mã màu HEX") },
-                    placeholder = { Text("#FF9800") },
+                    label = { Text(stringResource(R.string.category_color_hex_label)) },
+                    placeholder = { Text(stringResource(R.string.category_color_hex_placeholder)) },
                     colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -96,8 +104,8 @@ fun CategoryEditorScreen(
                 OutlinedTextField(
                     value = uiState.icon,
                     onValueChange = viewModel::updateIcon,
-                    label = { Text("Tên icon") },
-                    placeholder = { Text("restaurant") },
+                    label = { Text(stringResource(R.string.category_icon_name_label)) },
+                    placeholder = { Text(stringResource(R.string.category_icon_name_placeholder)) },
                     colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -118,7 +126,15 @@ fun CategoryEditorScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(if (uiState.id == 0L) "Thêm danh mục" else "Lưu thay đổi")
+                    Text(
+                        stringResource(
+                            if (uiState.id == 0L) {
+                                R.string.category_editor_add_title
+                            } else {
+                                R.string.category_save_changes
+                            }
+                        )
+                    )
                 }
             }
         }

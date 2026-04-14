@@ -17,8 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.budgetcontrol_jetpack.R
 import com.example.clean.entities.Category
 import com.example.clean.entities.Transaction
 import java.text.NumberFormat
@@ -46,14 +48,14 @@ fun CategoryTransactionHistoryDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    text = "Giao dịch - ${category.name}",
+                    text = stringResource(R.string.category_transaction_history_title, category.name),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color(0xFF333039)
                 )
 
                 if (transactions.isEmpty()) {
                     Text(
-                        text = "Chưa có giao dịch nào",
+                        text = stringResource(R.string.transaction_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF77737D)
                     )
@@ -96,7 +98,7 @@ fun CategoryTransactionHistoryDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Đóng")
+                        Text(stringResource(R.string.close))
                     }
                 }
             }

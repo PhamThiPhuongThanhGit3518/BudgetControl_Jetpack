@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ fun TransactionListScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Thêm giao dịch"
+                    contentDescription = stringResource(R.string.transaction_add_content_description)
                 )
             }
         }
@@ -107,7 +108,7 @@ fun TransactionListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "TỔNG TIỀN",
+                            text = stringResource(R.string.transaction_total_balance),
                             style = MaterialTheme.typography.titleMedium,
                             color = SummaryLabelText,
                             fontWeight = FontWeight.SemiBold
@@ -129,7 +130,7 @@ fun TransactionListScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         SummaryCard(
-                            title = "THU NHẬP",
+                            title = stringResource(R.string.summary_income_title),
                             amount = currencyFormatter.format(uiState.totalIncome),
                             accentColor = IncomeText,
                             prefix = "+ ",
@@ -137,7 +138,7 @@ fun TransactionListScreen(
                             modifier = Modifier.weight(1f)
                         )
                         SummaryCard(
-                            title = "CHI TIÊU",
+                            title = stringResource(R.string.summary_expense_title),
                             amount = currencyFormatter.format(uiState.totalExpense),
                             accentColor = ExpenseText,
                             prefix = "- ",
@@ -149,7 +150,7 @@ fun TransactionListScreen(
 
                 item {
                     Text(
-                        text = "Lịch sử giao dịch",
+                        text = stringResource(R.string.transaction_history_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = Color(0xFF000000),
                         modifier = Modifier.padding(top = 8.dp)
@@ -159,7 +160,7 @@ fun TransactionListScreen(
                 if (uiState.transactions.isEmpty()) {
                     item {
                         Text(
-                            text = "Chưa có giao dịch nào",
+                            text = stringResource(R.string.transaction_empty),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -248,7 +249,7 @@ private fun HomeHeader(
         IconButton(onClick = onAvatarClick) {
             Icon(
                 imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Tài khoản",
+                contentDescription = stringResource(R.string.transaction_header_account),
                 tint = Color(0xFF5FB7CF),
                 modifier = Modifier.size(34.dp)
             )
