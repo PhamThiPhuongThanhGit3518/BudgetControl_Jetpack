@@ -21,6 +21,7 @@ class CategoryMapper : Mapper<CategoryLocalEntity, Category> {
     override fun toLocal(domain: Category): CategoryLocalEntity {
         return CategoryLocalEntity(
             id = domain.id,
+            remoteId = null,
             name = domain.name,
             type = domain.type.name,
             colorHex = domain.colorHex,

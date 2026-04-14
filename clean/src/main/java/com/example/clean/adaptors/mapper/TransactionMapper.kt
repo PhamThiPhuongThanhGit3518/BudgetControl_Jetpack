@@ -21,6 +21,7 @@ class TransactionMapper : Mapper<TransactionLocalEntity, Transaction> {
     override fun toLocal(domain: Transaction): TransactionLocalEntity {
         return TransactionLocalEntity(
             id = domain.id,
+            remoteId = null,
             title = domain.title,
             amount = domain.amount,
             type = domain.type.name,
