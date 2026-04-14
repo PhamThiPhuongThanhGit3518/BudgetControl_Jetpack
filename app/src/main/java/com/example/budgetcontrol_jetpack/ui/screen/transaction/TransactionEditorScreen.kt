@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -20,7 +21,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,7 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -96,6 +99,7 @@ private fun TransactionEditorContent(
         unfocusedBorderColor = FieldBorder,
         cursorColor = Color.Black
     )
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         containerColor = SheetBackground
@@ -121,26 +125,44 @@ private fun TransactionEditorContent(
                 }
 
                 Text(
-                    text = stringResource(R.string.transaction_add),
+                    text = stringResource(
+                        if (uiState.id > 0) {
+                            R.string.transaction_edit_title
+                        } else {
+                            R.string.transaction_add
+                        }
+                    ),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF333039)
+                    color = Color(0xFF333039),
+                    fontWeight = FontWeight.Bold
                 )
             }
 
             Spacer(modifier = Modifier.size(0.dp))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = uiState.type == TransactionType.EXPENSE,
-                    onClick = { updateType(TransactionType.EXPENSE) },
-                    label = { Text(stringResource(R.string.type_expense_short)) }
-                )
-
-                FilterChip(
-                    selected = uiState.type == TransactionType.INCOME,
-                    onClick = { updateType(TransactionType.INCOME) },
-                    label = { Text(stringResource(R.string.type_income_short)) }
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(TypeBackground, RoundedCornerShape(12.dp))
+                    .padding(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    TransactionTypeToggle(
+                        text = stringResource(R.string.type_income_short),
+                        selected = uiState.type == TransactionType.INCOME,
+                        onClick = { updateType(TransactionType.INCOME) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    TransactionTypeToggle(
+                        text = stringResource(R.string.type_expense_short),
+                        selected = uiState.type == TransactionType.EXPENSE,
+                        onClick = { updateType(TransactionType.EXPENSE) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
             ExposedDropdownMenuBox(
@@ -197,8 +219,13 @@ private fun TransactionEditorContent(
                 onValueChange = updateAmount,
                 label = { Text(stringResource(R.string.transaction_amount_label)) },
                 placeholder = { Text(stringResource(R.string.transaction_amount_placeholder)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                 colors = fieldColors,
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                    }
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -207,6 +234,14 @@ private fun TransactionEditorContent(
                 onValueChange = updateNote,
                 label = { Text(stringResource(R.string.transaction_note_label)) },
                 colors = fieldColors,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                    }
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -218,11 +253,13 @@ private fun TransactionEditorContent(
                 )
             }
 
+            Spacer(modifier = Modifier.weight(1f))
+
             Button(
                 onClick = onSave,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp),
+                    .padding(bottom = 20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2E91EC),
                     contentColor = Color.White
@@ -235,9 +272,43 @@ private fun TransactionEditorContent(
     }
 }
 
+@Composable
+private fun TransactionTypeToggle(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) Color.White else Color.Transparent,
+            contentColor = if (selected) SelectedTypeText else UnselectedTypeText
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            disabledElevation = 0.dp
+        )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
+        )
+    }
+}
+
 private val SheetBackground = Color(0xFFFBF5FD)
 private val FieldBorder = Color(0xFF8E8794)
 private val FieldLabel = Color(0xFF6F6874)
+private val TypeBackground = Color(0xFFE6ECF2)
+private val SelectedTypeText = Color(0xFFE63B61)
+private val UnselectedTypeText = Color(0xFF6C7584)
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
