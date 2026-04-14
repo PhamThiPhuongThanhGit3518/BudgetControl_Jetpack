@@ -1,5 +1,7 @@
 package com.example.budgetcontrol_jetpack.navigation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -28,6 +30,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.budgetcontrol_jetpack.R
 import com.example.budgetcontrol_jetpack.MyApp
 import com.example.budgetcontrol_jetpack.ui.screen.auth.AuthScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryEditorScreen
@@ -36,6 +39,7 @@ import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryTransactionH
 import com.example.budgetcontrol_jetpack.ui.screen.dashboard.DashboardScreen
 import com.example.budgetcontrol_jetpack.ui.screen.transaction.TransactionEditorScreen
 import com.example.budgetcontrol_jetpack.ui.screen.transaction.TransactionListScreen
+import com.example.budgetcontrol_jetpack.viewmodel.auth.AuthViewModel
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryEditorViewModel
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryListViewModel
 import com.example.budgetcontrol_jetpack.viewmodel.dashboard.DashboardViewModel
@@ -44,15 +48,68 @@ import com.example.budgetcontrol_jetpack.viewmodel.transaction.TransactionListVi
 import com.example.clean.containers.CategoryContainer
 import com.example.clean.containers.DashboardContainer
 import com.example.clean.containers.TransactionContainer
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
-    val app = LocalContext.current.applicationContext as MyApp
+    val context = LocalContext.current
+    val app = context.applicationContext as MyApp
 
     val transactionContainer = remember { TransactionContainer(app.repositoryContainer) }
     val categoryContainer = remember { CategoryContainer(app.repositoryContainer) }
     val dashboardContainer = remember { DashboardContainer(app.repositoryContainer) }
+    val authVm = remember { AuthViewModel(app.repositoryContainer.authRepository) }
+    val authState by authVm.uiState.collectAsState()
+    val googleWebClientId = remember {
+        context.getString(R.string.google_web_client_id)
+    }
+    val googleSignInClient = remember {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(googleWebClientId)
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, options)
+    }
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        runCatching {
+            val account = GoogleSignIn
+                .getSignedInAccountFromIntent(result.data)
+                .getResult(ApiException::class.java)
+            val googleIdToken = account.idToken
+            if (googleIdToken.isNullOrBlank()) {
+                authVm.showError("Google chưa trả ID token. Kiểm tra Web client ID trong Firebase.")
+                return@rememberLauncherForActivityResult
+            }
+            val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
+            FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnSuccessListener { authResult ->
+                    authResult.user?.getIdToken(false)
+                        ?.addOnSuccessListener { tokenResult ->
+                            val token = tokenResult.token
+                            if (token.isNullOrBlank()) {
+                                authVm.showError("Không lấy được Firebase token")
+                            } else {
+                                authVm.firebaseLogin(token)
+                            }
+                        }
+                        ?.addOnFailureListener {
+                            authVm.showError(it.message ?: "Không lấy được Firebase token")
+                        }
+                }
+                .addOnFailureListener {
+                    authVm.showError(it.message ?: "Đăng nhập Google thất bại")
+                }
+        }.onFailure {
+            authVm.showError(it.message ?: "Đăng nhập Google thất bại")
+        }
+    }
     var transactionEditorId by remember { mutableStateOf<Long?>(null) }
     var categoryEditorId by remember { mutableStateOf<Long?>(null) }
 
@@ -113,13 +170,30 @@ fun AppNavGraph() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Destinations.AUTH) {
-                AuthScreen(
-                    onAuthSuccess = {
+                LaunchedEffect(authState.isAuthenticated) {
+                    if (authState.isAuthenticated) {
                         navController.navigate(Destinations.HOME) {
                             popUpTo(Destinations.AUTH) {
                                 inclusive = true
                             }
                             launchSingleTop = true
+                        }
+                    }
+                }
+                AuthScreen(
+                    isLoading = authState.isLoading,
+                    errorMessage = authState.errorMessage,
+                    onPhoneLogin = { phoneNumber, password ->
+                        authVm.login(phoneNumber, password)
+                    },
+                    onPhoneRegister = { phoneNumber, password, displayName ->
+                        authVm.register(phoneNumber, password, displayName)
+                    },
+                    onGoogleClick = {
+                        if (googleWebClientId == "YOUR_WEB_CLIENT_ID") {
+                            authVm.showError("Chưa cấu hình Google Web client ID trong strings.xml")
+                        } else {
+                            googleLauncher.launch(googleSignInClient.signInIntent)
                         }
                     }
                 )
@@ -141,8 +215,11 @@ fun AppNavGraph() {
                         transactionEditorId = id
                     },
                     onLogoutClick = {
+                        authVm.logout()
+                        FirebaseAuth.getInstance().signOut()
+                        googleSignInClient.signOut()
                         navController.navigate(Destinations.AUTH) {
-                            popUpTo(Destinations.HOME) {
+                            popUpTo(0) {
                                 inclusive = true
                             }
                             launchSingleTop = true

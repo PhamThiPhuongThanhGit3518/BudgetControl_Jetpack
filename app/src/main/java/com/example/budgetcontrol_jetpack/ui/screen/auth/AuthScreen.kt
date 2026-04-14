@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +49,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AuthScreen(
-    onAuthSuccess: () -> Unit
+    isLoading: Boolean,
+    errorMessage: String?,
+    onPhoneLogin: (phoneNumber: String, password: String) -> Unit,
+    onPhoneRegister: (phoneNumber: String, password: String, displayName: String) -> Unit,
+    onGoogleClick: () -> Unit
 ) {
     var isRegisterMode by remember { mutableStateOf(false) }
     var fullName by remember { mutableStateOf("") }
@@ -166,19 +171,43 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(22.dp))
 
             Button(
-                onClick = onAuthSuccess,
+                onClick = {
+                    if (isRegisterMode) {
+                        onPhoneRegister(phoneNumber, password, fullName)
+                    } else {
+                        onPhoneLogin(phoneNumber, password)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AccentBlue,
                     contentColor = Color.White
                 ),
                 shape = MaterialTheme.shapes.medium
             ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(22.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = if (isRegisterMode) "Đăng ký" else "Đăng nhập",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
                 Text(
-                    text = if (isRegisterMode) "Đăng ký" else "Đăng nhập",
-                    style = MaterialTheme.typography.titleSmall
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 10.dp),
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
 
@@ -189,10 +218,11 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             OutlinedButton(
-                onClick = onAuthSuccess,
+                onClick = onGoogleClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
+                enabled = !isLoading,
                 border = BorderStroke(1.dp, Color(0xFFD7DCE3)),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.outlinedButtonColors(
