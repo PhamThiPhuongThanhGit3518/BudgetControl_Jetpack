@@ -45,7 +45,7 @@ import com.example.clean.entities.CategoryType
 fun CategoryListScreen(
     viewModel: CategoryListViewModel,
     onAddClick: () -> Unit,
-    onCategoryClick: (Long) -> Unit,
+    onCategoryClick: (Category) -> Unit,
     onEditClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -91,7 +91,7 @@ private fun CategoryListContent(
     uiState: CategoryListUiState,
     padding: androidx.compose.foundation.layout.PaddingValues,
     onAddClick: () -> Unit,
-    onCategoryClick: (Long) -> Unit,
+    onCategoryClick: (Category) -> Unit,
     onEditClick: (Long) -> Unit,
     onDeleteClick: (Category) -> Unit
 ) {
@@ -151,7 +151,7 @@ private fun CategoryListContent(
             items(uiState.categories, key = { it.id }) { category ->
                 CategoryItem(
                     category = category,
-                    onClick = { onCategoryClick(category.id) },
+                    onClick = { onCategoryClick(category) },
                     onEditClick = { onEditClick(category.id) },
                     onDeleteClick = { onDeleteClick(category) }
                 )
