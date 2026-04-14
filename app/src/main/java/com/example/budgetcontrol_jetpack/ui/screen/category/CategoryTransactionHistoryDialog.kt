@@ -18,10 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.budgetcontrol_jetpack.R
+import com.example.budgetcontrol_jetpack.ui.theme.BudgetControl_JetpackTheme
 import com.example.clean.entities.Category
+import com.example.clean.entities.CategoryType
 import com.example.clean.entities.Transaction
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -103,5 +106,32 @@ fun CategoryTransactionHistoryDialog(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+private fun CategoryTransactionHistoryDialogPreview() {
+    BudgetControl_JetpackTheme(dynamicColor = false) {
+        CategoryTransactionHistoryDialog(
+            category = Category(
+                id = 1,
+                name = "Ăn uống",
+                type = CategoryType.EXPENSE,
+                isDefault = false
+            ),
+            transactions = listOf(
+                Transaction(
+                    id = 1,
+                    title = "Ăn uống",
+                    amount = 120000.0,
+                    type = com.example.clean.entities.TransactionType.EXPENSE,
+                    categoryId = 1,
+                    note = "Bữa trưa",
+                    createdAt = System.currentTimeMillis()
+                )
+            ),
+            onDismiss = {}
+        )
     }
 }
