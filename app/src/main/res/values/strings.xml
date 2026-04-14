@@ -29,11 +29,15 @@
     <string name="auth_app_mark">BC</string>
     <string name="auth_or">hoặc</string>
     <string name="dashboard_title">Thống kê</string>
-    <string name="dashboard_period_week">Tuần</string>
+    <string name="dashboard_period_custom">Tùy chọn</string>
     <string name="dashboard_period_month">Tháng</string>
     <string name="dashboard_period_year">Năm</string>
     <string name="dashboard_previous_period">Thời gian trước</string>
     <string name="dashboard_next_period">Thời gian sau</string>
+    <string name="dashboard_choose_month">Chọn tháng</string>
+    <string name="dashboard_choose_year">Chọn năm</string>
+    <string name="dashboard_choose_date_range">Chọn khoảng ngày</string>
+    <string name="dashboard_apply">Áp dụng</string>
     <string name="dashboard_total_income">Tổng thu</string>
     <string name="dashboard_total_expense">Tổng chi</string>
     <string name="dashboard_expense_by_category">Chi tiêu theo danh mục</string>
