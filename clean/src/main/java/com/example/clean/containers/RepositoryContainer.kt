@@ -3,8 +3,10 @@ package com.example.clean.containers
 import android.content.Context
 import androidx.room.Room
 import com.example.clean.adaptors.datasources.local.*
-import com.example.clean.adaptors.datasources.local.datasource.*
-import com.example.clean.adaptors.datasources.remote.AuthRepository
+import com.example.clean.adaptors.datasources.remote.AuthRemoteDataSource
+import com.example.clean.adaptors.datasources.remote.CategoryRemoteDataSource
+import com.example.clean.adaptors.datasources.remote.DashboardRemoteDataSource
+import com.example.clean.adaptors.datasources.remote.TransactionRemoteDataSource
 import com.example.clean.adaptors.mapper.CategoryMapper
 import com.example.clean.adaptors.mapper.TransactionMapper
 import com.example.clean.adaptors.repositories.CategoryRepositoryImpl
@@ -31,26 +33,30 @@ class RepositoryContainer(context: Context) {
     private val transactionMapper = TransactionMapper()
     private val categoryLocalDataSource = CategoryLocalDataSource(database.categoryDao())
     private val transactionLocalDataSource = TransactionLocalDataSource(database.transactionDao())
+    private val dashboardLocalDataSource = DashboardLocalDataSource(database.dashboardDao())
+    private val categoryRemoteDataSource = CategoryRemoteDataSource(api)
+    private val transactionRemoteDataSource = TransactionRemoteDataSource(api)
+    private val dashboardRemoteDataSource = DashboardRemoteDataSource(api)
 
     val categoryRepository = CategoryRepositoryImpl(
         localDataSource = categoryLocalDataSource,
         mapper = categoryMapper,
-        api = api
+        remoteDataSource = categoryRemoteDataSource
     )
 
     val transactionRepository = TransactionRepositoryImpl(
         localDataSource = transactionLocalDataSource,
         categoryLocalDataSource = categoryLocalDataSource,
         mapper = transactionMapper,
-        api = api
+        remoteDataSource = transactionRemoteDataSource
     )
 
     val dashboardRepository = DashboardRepositoryImpl(
-        localDataSource = DashboardLocalDataSource(database.dashboardDao()),
-        api = api
+        localDataSource = dashboardLocalDataSource,
+        remoteDataSource = dashboardRemoteDataSource
     )
 
-    val authRepository = AuthRepository(
+    val authRepository = AuthRemoteDataSource(
         api = api,
         tokenStore = tokenStore,
         syncAfterLogin = {
