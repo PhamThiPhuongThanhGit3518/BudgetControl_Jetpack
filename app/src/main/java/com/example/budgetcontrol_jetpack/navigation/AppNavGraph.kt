@@ -379,6 +379,7 @@ private fun AccountDrawerContent(
     onLogoutClick: () -> Unit
 ) {
     ModalDrawerSheet(
+        drawerContainerColor = Color(0xFFFFFFFF),
         modifier = Modifier
             .width(304.dp)
             .fillMaxHeight()
@@ -409,7 +410,7 @@ private fun AccountDrawerContent(
                     Text(
                         text = displayName.ifBlank { "BudgetControl" },
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF20242C),
+                        color = Color(0xFF545454),
                         fontWeight = FontWeight.SemiBold
                     )
                 }
