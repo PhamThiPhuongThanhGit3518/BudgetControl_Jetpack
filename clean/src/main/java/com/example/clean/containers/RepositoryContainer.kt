@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.example.clean.adaptors.datasources.local.*
 import com.example.clean.adaptors.datasources.remote.AuthRemoteDataSource
 import com.example.clean.adaptors.datasources.remote.CategoryRemoteDataSource
-import com.example.clean.adaptors.datasources.remote.DashboardRemoteDataSource
 import com.example.clean.adaptors.datasources.remote.TransactionRemoteDataSource
 import com.example.clean.adaptors.mapper.CategoryMapper
 import com.example.clean.adaptors.mapper.TransactionMapper
@@ -36,7 +35,6 @@ class RepositoryContainer(context: Context) {
     private val dashboardLocalDataSource = DashboardLocalDataSource(database.dashboardDao())
     private val categoryRemoteDataSource = CategoryRemoteDataSource(api)
     private val transactionRemoteDataSource = TransactionRemoteDataSource(api)
-    private val dashboardRemoteDataSource = DashboardRemoteDataSource(api)
 
     val categoryRepository = CategoryRepositoryImpl(
         localDataSource = categoryLocalDataSource,
@@ -53,8 +51,7 @@ class RepositoryContainer(context: Context) {
     )
 
     val dashboardRepository = DashboardRepositoryImpl(
-        localDataSource = dashboardLocalDataSource,
-        remoteDataSource = dashboardRemoteDataSource
+        localDataSource = dashboardLocalDataSource
     )
 
     val authRepository = AuthRemoteDataSource(
