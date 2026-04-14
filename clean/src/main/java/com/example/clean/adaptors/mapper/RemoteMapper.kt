@@ -20,8 +20,6 @@ fun CategoryDto.toLocal(existingId: Long = 0): CategoryLocalEntity {
         remoteId = id,
         name = name,
         type = type,
-        colorHex = colorHex,
-        icon = icon,
         isDefault = isDefault
     )
 }
@@ -30,8 +28,6 @@ fun CategoryLocalEntity.toRequest(): CategoryRequestDto {
     return CategoryRequestDto(
         name = name,
         type = type,
-        colorHex = colorHex,
-        icon = icon,
         isDefault = isDefault
     )
 }
