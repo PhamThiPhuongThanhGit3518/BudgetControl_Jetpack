@@ -15,11 +15,15 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.RESTRICT
         )
     ],
-    indices = [Index("categoryId")]
+    indices = [
+        Index("categoryId"),
+        Index(value = ["remoteId"], unique = true)
+    ]
 )
 data class TransactionLocalEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val remoteId: String? = null,
     val title: String,
     val amount: Double,
     val type: String,

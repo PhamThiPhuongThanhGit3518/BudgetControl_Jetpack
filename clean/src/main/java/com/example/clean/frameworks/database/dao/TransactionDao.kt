@@ -10,6 +10,9 @@ interface TransactionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(transaction: TransactionLocalEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(transactions: List<TransactionLocalEntity>)
+
     @Update
     suspend fun update(transaction: TransactionLocalEntity): Int
 
@@ -21,6 +24,12 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): TransactionLocalEntity?
+
+    @Query("SELECT * FROM transactions WHERE remoteId = :remoteId LIMIT 1")
+    suspend fun getByRemoteId(remoteId: String): TransactionLocalEntity?
+
+    @Query("DELETE FROM transactions")
+    suspend fun clear()
 
     @Query("""
         SELECT * FROM transactions

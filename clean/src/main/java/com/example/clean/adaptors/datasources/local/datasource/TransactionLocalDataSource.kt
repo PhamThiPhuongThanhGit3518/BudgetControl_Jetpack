@@ -9,6 +9,8 @@ class TransactionLocalDataSource(
 ) {
     suspend fun insert(transaction: TransactionLocalEntity): Long = dao.insert(transaction)
 
+    suspend fun insertAll(transactions: List<TransactionLocalEntity>) = dao.insertAll(transactions)
+
     suspend fun update(transaction: TransactionLocalEntity) = dao.update(transaction)
 
     suspend fun delete(transaction: TransactionLocalEntity) = dao.delete(transaction)
@@ -22,4 +24,8 @@ class TransactionLocalDataSource(
         dao.observeByType(type)
 
     suspend fun getById(id: Long): TransactionLocalEntity? = dao.getById(id)
+
+    suspend fun getByRemoteId(remoteId: String): TransactionLocalEntity? = dao.getByRemoteId(remoteId)
+
+    suspend fun clear() = dao.clear()
 }

@@ -10,6 +10,9 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(category: CategoryLocalEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(categories: List<CategoryLocalEntity>)
+
     @Update
     suspend fun update(category: CategoryLocalEntity): Int
 
@@ -21,6 +24,15 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): CategoryLocalEntity?
+
+    @Query("SELECT * FROM categories WHERE remoteId = :remoteId LIMIT 1")
+    suspend fun getByRemoteId(remoteId: String): CategoryLocalEntity?
+
+    @Query("SELECT * FROM categories")
+    suspend fun getAllOnce(): List<CategoryLocalEntity>
+
+    @Query("DELETE FROM categories")
+    suspend fun clear()
 
     @Query("SELECT * FROM categories WHERE type = :type ORDER BY name ASC")
     fun observeByType(type: String): Flow<List<CategoryLocalEntity>>

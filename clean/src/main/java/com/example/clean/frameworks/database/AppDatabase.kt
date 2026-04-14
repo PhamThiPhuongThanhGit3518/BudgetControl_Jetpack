@@ -13,7 +13,7 @@ import com.example.clean.frameworks.database.entity.TransactionLocalEntity
         CategoryLocalEntity::class,
         TransactionLocalEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
