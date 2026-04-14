@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674684934647",
+    "project_id": "budget-8a569",
+    "storage_bucket": "budget-8a569.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674684934647:android:a124325ca7c6a64ff336f2",
+        "android_client_info": {
+          "package_name": "com.example.budgetcontrol_jetpack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAat9E5H-FiTTiyv5NDeFSk4sABkAEOiGo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

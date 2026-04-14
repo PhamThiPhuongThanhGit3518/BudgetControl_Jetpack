@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-//    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -76,4 +76,7 @@ dependencies {
 
     // Kết nối với module clean
     implementation(project(":clean"))
+
+    implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }
