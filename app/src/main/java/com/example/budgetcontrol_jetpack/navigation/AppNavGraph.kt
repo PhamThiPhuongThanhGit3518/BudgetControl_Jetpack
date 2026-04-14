@@ -135,7 +135,6 @@ fun AppNavGraph() {
             authVm.showError(it.message ?: context.getString(R.string.google_login_failed))
         }
     }
-    var transactionEditorId by remember { mutableStateOf<Long?>(null) }
     var categoryEditorId by remember { mutableStateOf<Long?>(null) }
 
     val bottomDestinations = listOf(
@@ -233,7 +232,7 @@ fun AppNavGraph() {
             NavHost(
                 navController = navController,
                 startDestination = Destinations.AUTH,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
             ) {
                 composable(Destinations.AUTH) {
                     LaunchedEffect(authState.isAuthenticated) {
@@ -277,10 +276,10 @@ fun AppNavGraph() {
                     TransactionListScreen(
                         viewModel = vm,
                         onAddClick = {
-                            transactionEditorId = 0L
+                            navController.navigate("${Destinations.TRANSACTION_EDITOR}/0")
                         },
                         onEditClick = { id ->
-                            transactionEditorId = id
+                            navController.navigate("${Destinations.TRANSACTION_EDITOR}/$id")
                         },
                         onAvatarClick = {
                             scope.launch { drawerState.open() }
@@ -341,25 +340,29 @@ fun AppNavGraph() {
                     viewModel = vm
                 )
             }
-        }
 
-        transactionEditorId?.let { id ->
-            val vm = remember(id) {
-                TransactionEditorViewModel(
-                    useCases = transactionContainer.useCases,
-                    categoryUseCases = categoryContainer.useCases
+            composable("${Destinations.TRANSACTION_EDITOR}/{transactionId}") { backStackEntry ->
+                val id = backStackEntry.arguments
+                    ?.getString("transactionId")
+                    ?.toLongOrNull()
+                    ?: 0L
+                val vm = remember(id) {
+                    TransactionEditorViewModel(
+                        useCases = transactionContainer.useCases,
+                        categoryUseCases = categoryContainer.useCases
+                    )
+                }
+
+                LaunchedEffect(id) {
+                    vm.load(id)
+                }
+
+                TransactionEditorScreen(
+                    viewModel = vm,
+                    onDone = { navController.popBackStack() },
+                    onDismiss = { navController.popBackStack() }
                 )
             }
-
-            LaunchedEffect(id) {
-                vm.load(id)
-            }
-
-            TransactionEditorScreen(
-                viewModel = vm,
-                onDone = { transactionEditorId = null },
-                onDismiss = { transactionEditorId = null }
-            )
         }
 
         categoryEditorId?.let { id ->
