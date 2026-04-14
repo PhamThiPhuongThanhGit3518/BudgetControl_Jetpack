@@ -57,7 +57,6 @@ import com.example.budgetcontrol_jetpack.MyApp
 import com.example.budgetcontrol_jetpack.ui.screen.auth.AuthScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryEditorScreen
 import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryListScreen
-import com.example.budgetcontrol_jetpack.ui.screen.category.CategoryTransactionHistoryDialog
 import com.example.budgetcontrol_jetpack.ui.screen.dashboard.DashboardScreen
 import com.example.budgetcontrol_jetpack.ui.screen.transaction.TransactionEditorScreen
 import com.example.budgetcontrol_jetpack.ui.screen.transaction.TransactionHistoryScreen
@@ -71,6 +70,7 @@ import com.example.budgetcontrol_jetpack.viewmodel.transaction.TransactionListVi
 import com.example.clean.containers.CategoryContainer
 import com.example.clean.containers.DashboardContainer
 import com.example.clean.containers.TransactionContainer
+import com.example.clean.entities.TransactionType
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -291,15 +291,28 @@ fun AppNavGraph() {
                     )
                 }
 
-                composable(Destinations.TRANSACTION_HISTORY) {
+                composable(Destinations.TRANSACTION_HISTORY_ROUTE) { backStackEntry ->
                     val vm = remember {
                         TransactionListViewModel(
                             useCases = transactionContainer.useCases
                         )
                     }
+                    val type = backStackEntry.arguments
+                        ?.getString("type")
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let(TransactionType::valueOf)
+                    val categoryId = backStackEntry.arguments
+                        ?.getString("categoryId")
+                        ?.toLongOrNull()
+                    val categoryName = backStackEntry.arguments
+                        ?.getString("categoryName")
+                        ?.takeIf { it.isNotBlank() }
 
                     TransactionHistoryScreen(
                         viewModel = vm,
+                        initialType = type,
+                        initialCategoryId = categoryId,
+                        initialCategoryName = categoryName,
                         onBack = { navController.popBackStack() },
                         onEditClick = { id ->
                             navController.navigate("${Destinations.TRANSACTION_EDITOR}/$id")
@@ -313,40 +326,23 @@ fun AppNavGraph() {
                             useCases = categoryContainer.useCases
                         )
                     }
-                    val transactionVm = remember {
-                        TransactionListViewModel(
-                            useCases = transactionContainer.useCases
-                        )
-                    }
-                    var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
-                    val categoryState by categoryVm.uiState.collectAsState()
-                    val transactionState by transactionVm.uiState.collectAsState()
-
                     CategoryListScreen(
                         viewModel = categoryVm,
                         onAddClick = {
                             categoryEditorId = 0L
                         },
-                        onCategoryClick = { id ->
-                            selectedCategoryId = id
+                        onCategoryClick = { category ->
+                            navController.navigate(
+                                Destinations.transactionHistoryRoute(
+                                    categoryId = category.id,
+                                    categoryName = category.name
+                                )
+                            )
                         },
                         onEditClick = { id ->
                             categoryEditorId = id
                         }
                     )
-
-                    val selectedCategory = categoryState.categories.firstOrNull {
-                        it.id == selectedCategoryId
-                    }
-                    if (selectedCategory != null) {
-                        CategoryTransactionHistoryDialog(
-                            category = selectedCategory,
-                            transactions = transactionState.transactions.filter {
-                                it.categoryId == selectedCategory.id
-                            },
-                            onDismiss = { selectedCategoryId = null }
-                        )
-                    }
                 }
 
                 composable(Destinations.DASHBOARD) {
@@ -357,7 +353,17 @@ fun AppNavGraph() {
                     }
 
                     DashboardScreen(
-                        viewModel = vm
+                        viewModel = vm,
+                        onIncomeClick = {
+                            navController.navigate(
+                                Destinations.transactionHistoryRoute(type = TransactionType.INCOME.name)
+                            )
+                        },
+                        onExpenseClick = {
+                            navController.navigate(
+                                Destinations.transactionHistoryRoute(type = TransactionType.EXPENSE.name)
+                            )
+                        }
                     )
                 }
 
