@@ -62,6 +62,7 @@
     <string name="close">Đóng</string>
     <string name="back">Quay lại</string>
     <string name="transaction_add">Thêm giao dịch mới</string>
+    <string name="transaction_edit_title">Sửa giao dịch</string>
     <string name="transaction_category_label">Danh mục</string>
     <string name="transaction_category_placeholder">Chọn danh mục</string>
     <string name="transaction_amount_label">Số tiền (VNĐ)</string>
@@ -71,6 +72,15 @@
     <string name="transaction_add_content_description">Thêm giao dịch</string>
     <string name="transaction_total_balance">TỔNG TIỀN</string>
     <string name="transaction_history_title">Lịch sử giao dịch</string>
+    <string name="transaction_history_all">Xem tất cả</string>
+    <string name="transaction_history_all_time">Tất cả thời gian</string>
+    <string name="transaction_history_choose_date_range">Chọn khoảng ngày</string>
+    <string name="transaction_history_date_range_title">Chọn khoảng ngày giao dịch</string>
+    <string name="transaction_history_clear_date_range">Bỏ lọc ngày</string>
+    <string name="transaction_history_apply_date_range">Áp dụng</string>
+    <string name="transaction_history_from_date">Từ ngày</string>
+    <string name="transaction_history_to_date">Đến ngày</string>
+    <string name="transaction_history_load_more">Đang tải thêm giao dịch...</string>
     <string name="transaction_header_account">Tài khoản</string>
     <string name="transaction_edit">Sửa</string>
     <string name="transaction_delete">Xóa</string>
