@@ -69,12 +69,18 @@ private const val PAGE_SIZE = 20
 @Composable
 fun TransactionHistoryScreen(
     viewModel: TransactionListViewModel,
+    initialType: TransactionType? = null,
+    initialCategoryId: Long? = null,
+    initialCategoryName: String? = null,
     onBack: () -> Unit,
     onEditClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     TransactionHistoryContent(
         uiState = uiState,
+        initialType = initialType,
+        initialCategoryId = initialCategoryId,
+        initialCategoryName = initialCategoryName,
         onBack = onBack,
         onEditClick = onEditClick,
         onDeleteClick = viewModel::delete
@@ -85,6 +91,9 @@ fun TransactionHistoryScreen(
 @Composable
 private fun TransactionHistoryContent(
     uiState: TransactionListUiState,
+    initialType: TransactionType?,
+    initialCategoryId: Long?,
+    initialCategoryName: String?,
     onBack: () -> Unit,
     onEditClick: (Long) -> Unit,
     onDeleteClick: (Transaction) -> Unit
@@ -99,11 +108,21 @@ private fun TransactionHistoryContent(
     var endDateMillis by rememberSaveable { mutableStateOf<Long?>(null) }
     var visibleCount by rememberSaveable(startDateMillis, endDateMillis) { mutableIntStateOf(PAGE_SIZE) }
 
-    val filteredTransactions = remember(uiState.transactions, startDateMillis, endDateMillis) {
+    val filteredTransactions = remember(
+        uiState.transactions,
+        initialType,
+        initialCategoryId,
+        startDateMillis,
+        endDateMillis
+    ) {
         uiState.transactions
             .sortedByDescending { it.createdAt }
             .filter { transaction ->
-                isTransactionInDateRange(
+                isTransactionMatchingInitialFilter(
+                    transaction = transaction,
+                    initialType = initialType,
+                    initialCategoryId = initialCategoryId
+                ) && isTransactionInDateRange(
                     transaction = transaction,
                     startDateMillis = startDateMillis,
                     endDateMillis = endDateMillis
@@ -136,7 +155,10 @@ private fun TransactionHistoryContent(
                     )
                 }
                 Text(
-                    text = stringResource(R.string.transaction_history_title),
+                    text = buildHistoryTitle(
+                        initialType = initialType,
+                        initialCategoryName = initialCategoryName
+                    ),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold
@@ -461,6 +483,16 @@ private fun isTransactionInDateRange(
     return isAfterStart && isBeforeEnd
 }
 
+private fun isTransactionMatchingInitialFilter(
+    transaction: Transaction,
+    initialType: TransactionType?,
+    initialCategoryId: Long?
+): Boolean {
+    val matchesType = initialType == null || transaction.type == initialType
+    val matchesCategory = initialCategoryId == null || transaction.categoryId == initialCategoryId
+    return matchesType && matchesCategory
+}
+
 private fun buildAppliedDateRangeLabel(
     startDateMillis: Long?,
     endDateMillis: Long?,
@@ -483,6 +515,21 @@ private fun buildSelectedDateRangeLabel(
     val endLabel = endDateMillis?.let(dateFormatter::format)
         ?: "Đến ngày"
     return "$startLabel - $endLabel"
+}
+
+private fun buildHistoryTitle(
+    initialType: TransactionType?,
+    initialCategoryName: String?
+): String {
+    return when {
+        !initialCategoryName.isNullOrBlank() ->
+            "Lịch sử giao dịch - $initialCategoryName"
+        initialType == TransactionType.INCOME ->
+            "Lịch sử giao dịch - Tổng thu"
+        initialType == TransactionType.EXPENSE ->
+            "Lịch sử giao dịch - Tổng chi"
+        else -> "Lịch sử giao dịch"
+    }
 }
 
 private fun Long.startOfDayMillis(): Long {
