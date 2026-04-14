@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.Month
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -24,12 +24,18 @@ data class DashboardUiState(
     val period: DatePeriod = DatePeriod.MONTH,
     val periodLabel: String = "",
     val summary: DashboardSummary = DashboardSummary(0.0, 0.0, 0.0),
-    val stats: List<CategoryExpenseStat> = emptyList()
+    val stats: List<CategoryExpenseStat> = emptyList(),
+    val anchorYear: Int = LocalDate.now().year,
+    val anchorMonth: Int = LocalDate.now().monthValue,
+    val startMillis: Long = 0L,
+    val endMillis: Long = 0L
 )
 
 private data class DashboardFilter(
     val period: DatePeriod,
-    val anchorDate: LocalDate
+    val anchorDate: LocalDate,
+    val customStartDate: LocalDate? = null,
+    val customEndDate: LocalDate? = null
 )
 
 private data class DateRange(
@@ -45,7 +51,9 @@ class DashboardViewModel(
     private val filterFlow = MutableStateFlow(
         DashboardFilter(
             period = DatePeriod.MONTH,
-            anchorDate = LocalDate.now()
+            anchorDate = LocalDate.now(),
+            customStartDate = null,
+            customEndDate = null
         )
     )
 
@@ -70,7 +78,11 @@ class DashboardViewModel(
                         period = filter.period,
                         periodLabel = range.label,
                         summary = summary,
-                        stats = stats
+                        stats = stats,
+                        anchorYear = filter.anchorDate.year,
+                        anchorMonth = filter.anchorDate.monthValue,
+                        startMillis = range.startMillis,
+                        endMillis = range.endMillis
                     )
                 }
             }.catch {
@@ -80,7 +92,11 @@ class DashboardViewModel(
                     period = currentFilter.period,
                     periodLabel = range.label,
                     summary = DashboardSummary(0.0, 0.0, 0.0),
-                    stats = emptyList()
+                    stats = emptyList(),
+                    anchorYear = currentFilter.anchorDate.year,
+                    anchorMonth = currentFilter.anchorDate.monthValue,
+                    startMillis = range.startMillis,
+                    endMillis = range.endMillis
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -89,34 +105,80 @@ class DashboardViewModel(
     }
 
     fun updatePeriod(period: DatePeriod) {
-        filterFlow.value = DashboardFilter(
-            period = period,
-            anchorDate = LocalDate.now()
-        )
+        val current = filterFlow.value
+        filterFlow.value = when (period) {
+            DatePeriod.MONTH,
+            DatePeriod.YEAR -> current.copy(
+                period = period,
+                anchorDate = current.anchorDate
+            )
+
+            DatePeriod.CUSTOM -> current.copy(
+                period = DatePeriod.CUSTOM,
+                customStartDate = current.customStartDate ?: current.anchorDate,
+                customEndDate = current.customEndDate ?: current.anchorDate
+            )
+        }
     }
 
     fun movePrevious() {
         val current = filterFlow.value
-        filterFlow.value = current.copy(
-            anchorDate = current.anchorDate.shiftByPeriod(current.period, -1)
-        )
+        filterFlow.value = when (current.period) {
+            DatePeriod.MONTH,
+            DatePeriod.YEAR -> current.copy(
+                anchorDate = current.anchorDate.shiftByPeriod(current.period, -1)
+            )
+
+            DatePeriod.CUSTOM -> current
+        }
     }
 
     fun moveNext() {
         val current = filterFlow.value
-        filterFlow.value = current.copy(
-            anchorDate = current.anchorDate.shiftByPeriod(current.period, 1)
+        filterFlow.value = when (current.period) {
+            DatePeriod.MONTH,
+            DatePeriod.YEAR -> current.copy(
+                anchorDate = current.anchorDate.shiftByPeriod(current.period, 1)
+            )
+
+            DatePeriod.CUSTOM -> current
+        }
+    }
+
+    fun updateMonth(year: Int, month: Int) {
+        val monthValue = month.coerceIn(1, 12)
+        filterFlow.value = filterFlow.value.copy(
+            period = DatePeriod.MONTH,
+            anchorDate = LocalDate.of(year, monthValue, 1)
+        )
+    }
+
+    fun updateYear(year: Int) {
+        filterFlow.value = filterFlow.value.copy(
+            period = DatePeriod.YEAR,
+            anchorDate = LocalDate.of(year, Month.JANUARY, 1)
+        )
+    }
+
+    fun updateCustomRange(start: LocalDate, end: LocalDate) {
+        val safeStart = if (start <= end) start else end
+        val safeEnd = if (end >= start) end else start
+        filterFlow.value = filterFlow.value.copy(
+            period = DatePeriod.CUSTOM,
+            anchorDate = safeStart,
+            customStartDate = safeStart,
+            customEndDate = safeEnd
         )
     }
 
     private fun DashboardFilter.toDateRange(): DateRange {
         val start = when (period) {
-            DatePeriod.WEEK -> anchorDate.with(DayOfWeek.MONDAY)
+            DatePeriod.CUSTOM -> customStartDate ?: anchorDate
             DatePeriod.MONTH -> anchorDate.withDayOfMonth(1)
             DatePeriod.YEAR -> anchorDate.withDayOfYear(1)
         }
         val end = when (period) {
-            DatePeriod.WEEK -> start.plusDays(6)
+            DatePeriod.CUSTOM -> customEndDate ?: start
             DatePeriod.MONTH -> start.plusMonths(1).minusDays(1)
             DatePeriod.YEAR -> start.plusYears(1).minusDays(1)
         }
@@ -130,7 +192,7 @@ class DashboardViewModel(
 
     private fun LocalDate.shiftByPeriod(period: DatePeriod, amount: Long): LocalDate {
         return when (period) {
-            DatePeriod.WEEK -> plusWeeks(amount)
+            DatePeriod.CUSTOM -> this
             DatePeriod.MONTH -> plusMonths(amount)
             DatePeriod.YEAR -> plusYears(amount)
         }
@@ -153,7 +215,7 @@ class DashboardViewModel(
         val dayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", locale)
 
         return when (period) {
-            DatePeriod.WEEK -> "${start.format(dayFormatter)} - ${end.format(dayFormatter)}"
+            DatePeriod.CUSTOM -> "${start.format(dayFormatter)} - ${end.format(dayFormatter)}"
             DatePeriod.MONTH -> start.format(DateTimeFormatter.ofPattern("MM/yyyy", locale))
             DatePeriod.YEAR -> start.format(DateTimeFormatter.ofPattern("yyyy", locale))
         }
