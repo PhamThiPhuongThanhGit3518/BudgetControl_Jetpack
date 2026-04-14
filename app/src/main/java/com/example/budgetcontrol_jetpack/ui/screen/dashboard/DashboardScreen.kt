@@ -31,10 +31,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.budgetcontrol_jetpack.R
+import com.example.budgetcontrol_jetpack.ui.theme.BudgetControl_JetpackTheme
+import com.example.budgetcontrol_jetpack.viewmodel.dashboard.DashboardUiState
 import com.example.budgetcontrol_jetpack.viewmodel.dashboard.DashboardViewModel
 import com.example.clean.entities.CategoryExpenseStat
+import com.example.clean.entities.DashboardSummary
 import com.example.clean.entities.DatePeriod
 import java.text.NumberFormat
 import java.util.Locale
@@ -44,6 +48,25 @@ fun DashboardScreen(
     viewModel: DashboardViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    DashboardScreenContent(
+        uiState = uiState,
+        onWeekClick = { viewModel.updatePeriod(DatePeriod.WEEK) },
+        onMonthClick = { viewModel.updatePeriod(DatePeriod.MONTH) },
+        onYearClick = { viewModel.updatePeriod(DatePeriod.YEAR) },
+        onPrevious = viewModel::movePrevious,
+        onNext = viewModel::moveNext
+    )
+}
+
+@Composable
+private fun DashboardScreenContent(
+    uiState: DashboardUiState,
+    onWeekClick: () -> Unit,
+    onMonthClick: () -> Unit,
+    onYearClick: () -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit
+) {
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"))
 
     Scaffold(containerColor = ScreenBackground) { padding ->
@@ -63,17 +86,17 @@ fun DashboardScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = uiState.period == DatePeriod.WEEK,
-                    onClick = { viewModel.updatePeriod(DatePeriod.WEEK) },
+                    onClick = onWeekClick,
                     label = { Text(stringResource(R.string.dashboard_period_week)) }
                 )
                 FilterChip(
                     selected = uiState.period == DatePeriod.MONTH,
-                    onClick = { viewModel.updatePeriod(DatePeriod.MONTH) },
+                    onClick = onMonthClick,
                     label = { Text(stringResource(R.string.dashboard_period_month)) }
                 )
                 FilterChip(
                     selected = uiState.period == DatePeriod.YEAR,
-                    onClick = { viewModel.updatePeriod(DatePeriod.YEAR) },
+                    onClick = onYearClick,
                     label = { Text(stringResource(R.string.dashboard_period_year)) }
                 )
             }
@@ -91,7 +114,7 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = viewModel::movePrevious) {
+                    IconButton(onClick = onPrevious) {
                         Icon(
                             imageVector = Icons.Default.ChevronLeft,
                             contentDescription = stringResource(R.string.dashboard_previous_period),
@@ -105,7 +128,7 @@ fun DashboardScreen(
                         color = Color.Black
                     )
 
-                    IconButton(onClick = viewModel::moveNext) {
+                    IconButton(onClick = onNext) {
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = stringResource(R.string.dashboard_next_period),
@@ -282,3 +305,27 @@ private val ChartColors = listOf(
     Color(0xFFE54535),
     Color(0xFFD39A2B)
 )
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+private fun DashboardScreenPreview() {
+    BudgetControl_JetpackTheme(dynamicColor = false) {
+        DashboardScreenContent(
+            uiState = DashboardUiState(
+                period = DatePeriod.MONTH,
+                periodLabel = "04/2026",
+                summary = DashboardSummary(32000000.0, 12500000.0, 19500000.0),
+                stats = listOf(
+                    CategoryExpenseStat(1, "Ăn uống", 3200000.0, 0.3f),
+                    CategoryExpenseStat(2, "Đi lại", 1800000.0, 0.18f),
+                    CategoryExpenseStat(3, "Giải trí", 1500000.0, 0.15f)
+                )
+            ),
+            onWeekClick = {},
+            onMonthClick = {},
+            onYearClick = {},
+            onPrevious = {},
+            onNext = {}
+        )
+    }
+}
