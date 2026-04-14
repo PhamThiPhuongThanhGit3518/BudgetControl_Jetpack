@@ -1,10 +1,10 @@
 package com.example.clean.adaptors.repositories
 
-import com.example.clean.adaptors.datasources.local.datasource.DashboardLocalDataSource
+import com.example.clean.adaptors.datasources.local.DashboardLocalDataSource
+import com.example.clean.adaptors.datasources.remote.DashboardRemoteDataSource
 import com.example.clean.adaptors.mapper.toDomain
 import com.example.clean.entities.CategoryExpenseStat
 import com.example.clean.entities.DashboardSummary
-import com.example.clean.frameworks.network.BudgetControlApi
 import com.example.clean.repositories.DashboardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -14,16 +14,16 @@ import java.util.concurrent.TimeUnit
 
 class DashboardRepositoryImpl(
     private val localDataSource: DashboardLocalDataSource,
-    private val api: BudgetControlApi? = null
+    private val remoteDataSource: DashboardRemoteDataSource? = null
 ) : DashboardRepository {
 
     override fun observeExpenseByCategory(
         start: Long,
         end: Long
     ): Flow<List<CategoryExpenseStat>> {
-        if (api != null) {
+        if (remoteDataSource != null) {
             return flow {
-                emit(api.expenseRatio(periodFromRange(start, end)).items.map { it.toDomain() })
+                emit(remoteDataSource.expenseRatio(periodFromRange(start, end)).map { it.toDomain() })
             }
         }
         return localDataSource.observeExpenseByCategory(start, end).map { rows ->
@@ -40,9 +40,9 @@ class DashboardRepositoryImpl(
     }
 
     override fun observeSummary(start: Long, end: Long): Flow<DashboardSummary> {
-        if (api != null) {
+        if (remoteDataSource != null) {
             return flow {
-                emit(api.dashboardSummary(periodFromRange(start, end)).toDomain())
+                emit(remoteDataSource.summary(periodFromRange(start, end)).toDomain())
             }
         }
         return combine(
