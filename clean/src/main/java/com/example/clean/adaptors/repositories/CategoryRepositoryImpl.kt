@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 
 class CategoryRepositoryImpl(
     private val localDataSource: CategoryLocalDataSource,
+    private val transactionLocalDataSource: com.example.clean.adaptors.datasources.local.TransactionLocalDataSource,
     private val mapper: CategoryMapper,
     private val remoteDataSource: CategoryRemoteDataSource? = null
 ) : CategoryRepository {
@@ -44,6 +45,7 @@ class CategoryRepositoryImpl(
         if (remoteDataSource != null && remoteId != null) {
             remoteDataSource.delete(remoteId)
         }
+        transactionLocalDataSource.deleteByCategoryId(category.id)
         localDataSource.delete(mapper.toLocal(category).copy(remoteId = remoteId))
     }
 
