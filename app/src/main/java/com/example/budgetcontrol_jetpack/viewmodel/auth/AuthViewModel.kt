@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 data class AuthUiState(
     val isLoading: Boolean = false,
     val isAuthenticated: Boolean = false,
+    val displayName: String = "",
     val errorMessage: String? = null
 )
 
@@ -24,6 +25,11 @@ class AuthViewModel(
         viewModelScope.launch {
             authRepository.accessToken.collect { token ->
                 _uiState.value = _uiState.value.copy(isAuthenticated = !token.isNullOrBlank())
+            }
+        }
+        viewModelScope.launch {
+            authRepository.displayName.collect { displayName ->
+                _uiState.value = _uiState.value.copy(displayName = displayName)
             }
         }
     }
@@ -50,6 +56,7 @@ class AuthViewModel(
         _uiState.value = _uiState.value.copy(
             isAuthenticated = false,
             isLoading = false,
+            displayName = "",
             errorMessage = null
         )
         viewModelScope.launch {
