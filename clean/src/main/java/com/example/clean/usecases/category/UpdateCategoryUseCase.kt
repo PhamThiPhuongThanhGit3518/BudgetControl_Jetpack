@@ -9,8 +9,6 @@ class UpdateCategoryUseCase(
     suspend operator fun invoke(category: Category) {
         require(category.id > 0) { "ID danh mục không hợp lệ" }
         require(category.name.isNotBlank()) { "Tên danh mục không được rỗng" }
-        require(category.colorHex.isNotBlank()) { "Màu danh mục không được rỗng" }
-        require(category.icon.isNotBlank()) { "Icon danh mục không được rỗng" }
 
         repository.update(
             category.copy(
