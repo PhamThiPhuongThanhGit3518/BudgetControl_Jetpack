@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -46,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import com.example.budgetcontrol_jetpack.R
@@ -63,7 +66,8 @@ fun TransactionListScreen(
     viewModel: TransactionListViewModel,
     onAddClick: () -> Unit,
     onEditClick: (Long) -> Unit,
-    onAvatarClick: () -> Unit
+    onAvatarClick: () -> Unit,
+    onViewAllClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     TransactionListContent(
@@ -71,6 +75,7 @@ fun TransactionListScreen(
         onAddClick = onAddClick,
         onEditClick = onEditClick,
         onAvatarClick = onAvatarClick,
+        onViewAllClick = onViewAllClick,
         onDeleteClick = viewModel::delete
     )
 }
@@ -81,6 +86,7 @@ private fun TransactionListContent(
     onAddClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onAvatarClick: () -> Unit,
+    onViewAllClick: () -> Unit,
     onDeleteClick: (Transaction) -> Unit
 ) {
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"))
@@ -116,182 +122,204 @@ private fun TransactionListContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(16.dp)
             ) {
-                item {
-                    HomeHeader(onAvatarClick = onAvatarClick)
-                }
+                HomeHeader(onAvatarClick = onAvatarClick)
 
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.transaction_total_balance),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = SummaryLabelText,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = currencyFormatter.format(uiState.balance),
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 31.sp
-                            ),
-                            color = BalanceText
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        SummaryCard(
-                            title = stringResource(R.string.summary_income_title),
-                            amount = currencyFormatter.format(uiState.totalIncome),
-                            accentColor = IncomeText,
-                            prefix = "+ ",
-                            isIncome = true,
-                            modifier = Modifier.weight(1f)
-                        )
-                        SummaryCard(
-                            title = stringResource(R.string.summary_expense_title),
-                            amount = currencyFormatter.format(uiState.totalExpense),
-                            accentColor = ExpenseText,
-                            prefix = "- ",
-                            isIncome = false,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        text = stringResource(R.string.transaction_history_title),
+                        text = stringResource(R.string.transaction_total_balance),
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF000000),
-                        modifier = Modifier.padding(top = 8.dp)
+                        color = SummaryLabelText,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = currencyFormatter.format(uiState.balance),
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 31.sp
+                        ),
+                        color = BalanceText
                     )
                 }
 
-                if (uiState.transactions.isEmpty()) {
-                    item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SummaryCard(
+                        title = stringResource(R.string.summary_income_title),
+                        amount = currencyFormatter.format(uiState.totalIncome),
+                        accentColor = IncomeText,
+                        prefix = "+ ",
+                        isIncome = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        title = stringResource(R.string.summary_expense_title),
+                        amount = currencyFormatter.format(uiState.totalExpense),
+                        accentColor = ExpenseText,
+                        prefix = "- ",
+                        isIncome = false,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.transaction_history_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color(0xFF000000)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = stringResource(R.string.transaction_history_all),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = AccentBlue,
+                        modifier = Modifier.clickable(onClick = onViewAllClick)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    if (uiState.transactions.isEmpty()) {
                         Text(
                             text = stringResource(R.string.transaction_empty),
                             style = MaterialTheme.typography.bodyLarge
                         )
-                    }
-                }
-
-                items(uiState.transactions, key = { it.id }) { item ->
-                    Box {
-                        Surface(
+                    } else {
+                        LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { expandedTransactionId = item.id },
-                            shape = MaterialTheme.shapes.medium,
-                            color = Color.White,
-                            shadowElevation = 1.dp
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.padding(14.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val isIncome = item.type == TransactionType.INCOME
-                                Box(
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .background(
-                                            color = if (isIncome) IncomeSoft else ExpenseSoft,
-                                            shape = CircleShape
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = if (isIncome) {
-                                            Icons.Default.ArrowUpward
-                                        } else {
-                                            Icons.Default.ArrowDownward
-                                        },
-                                        contentDescription = null,
-                                        tint = if (isIncome) IncomeText else ExpenseText
-                                    )
-                                }
+                            items(uiState.transactions, key = { it.id }) { item ->
+                                Box {
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { expandedTransactionId = item.id },
+                                        shape = MaterialTheme.shapes.medium,
+                                        color = Color.White,
+                                        shadowElevation = 1.dp
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(14.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            val isIncome = item.type == TransactionType.INCOME
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(34.dp)
+                                                    .background(
+                                                        color = if (isIncome) IncomeSoft else ExpenseSoft,
+                                                        shape = CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isIncome) {
+                                                        Icons.Default.ArrowUpward
+                                                    } else {
+                                                        Icons.Default.ArrowDownward
+                                                    },
+                                                    contentDescription = null,
+                                                    tint = if (isIncome) IncomeText else ExpenseText
+                                                )
+                                            }
 
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = currencyFormatter.format(item.amount),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = if (isIncome) IncomeText else ExpenseText
-                                    )
-                                    Text(
-                                        text = buildTransactionSubtitle(
-                                            categoryName = item.title,
-                                            note = item.note
-                                        ),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFF4F4A55)
-                                    )
-                                }
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = currencyFormatter.format(item.amount),
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    color = if (isIncome) IncomeText else ExpenseText
+                                                )
+                                                Text(
+                                                    text = buildTransactionSubtitle(
+                                                        categoryName = item.title,
+                                                        note = item.note
+                                                    ),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = Color(0xFF4F4A55)
+                                                )
+                                            }
 
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        text = dateFormatter.format(item.createdAt),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MutedText
-                                    )
-                                    Text(
-                                        text = timeFormatter.format(item.createdAt),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MutedText
-                                    )
+                                            Column(horizontalAlignment = Alignment.End) {
+                                                Text(
+                                                    text = dateFormatter.format(item.createdAt),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MutedText
+                                                )
+                                                Text(
+                                                    text = timeFormatter.format(item.createdAt),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MutedText
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomEnd)
+                                            .padding(end = 16.dp, bottom = 8.dp)
+                                    ) {
+                                        MaterialTheme(
+                                            colorScheme = MaterialTheme.colorScheme.copy(surface = Color.White)
+                                        ) {
+                                            DropdownMenu(
+                                                expanded = expandedTransactionId == item.id,
+                                                onDismissRequest = { expandedTransactionId = null },
+                                                offset = DpOffset(x = 0.dp, y = 4.dp),
+                                                modifier = Modifier.background(Color.White)
+                                            ) {
+                                                DropdownMenuItem(
+                                                    text = { Text(stringResource(R.string.transaction_edit)) },
+                                                    onClick = {
+                                                        expandedTransactionId = null
+                                                        onEditClick(item.id)
+                                                    },
+                                                    leadingIcon = {
+                                                        Icon(Icons.Default.Edit, null, tint = AccentBlue)
+                                                    }
+                                                )
+                                                DropdownMenuItem(
+                                                    text = { Text(stringResource(R.string.transaction_delete)) },
+                                                    onClick = {
+                                                        expandedTransactionId = null
+                                                        transactionPendingDelete = item
+                                                    },
+                                                    leadingIcon = {
+                                                        Icon(Icons.Default.Delete, null, tint = ExpenseText)
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-
-                        DropdownMenu(
-                            expanded = expandedTransactionId == item.id,
-                            onDismissRequest = { expandedTransactionId = null }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.transaction_edit)) },
-                                onClick = {
-                                    expandedTransactionId = null
-                                    onEditClick(item.id)
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null,
-                                        tint = AccentBlue
-                                    )
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.transaction_delete)) },
-                                onClick = {
-                                    expandedTransactionId = null
-                                    transactionPendingDelete = item
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = null,
-                                        tint = ExpenseText
-                                    )
-                                }
-                            )
+                            item {
+                                Spacer(modifier = Modifier.height(96.dp))
+                            }
                         }
                     }
                 }
@@ -452,6 +480,7 @@ private fun TransactionListScreenPreview() {
             onAddClick = {},
             onEditClick = {},
             onAvatarClick = {},
+            onViewAllClick = {},
             onDeleteClick = {}
         )
     }
