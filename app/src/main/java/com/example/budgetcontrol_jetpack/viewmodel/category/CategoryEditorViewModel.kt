@@ -14,8 +14,6 @@ data class CategoryEditorUiState(
     val id: Long = 0,
     val name: String = "",
     val type: CategoryType = CategoryType.EXPENSE,
-    val colorHex: String = "#FF9800",
-    val icon: String = "category",
     val isDefault: Boolean = false,
     val errorMessage: String? = null
 )
@@ -35,14 +33,6 @@ class CategoryEditorViewModel(
         _uiState.value = _uiState.value.copy(type = value, errorMessage = null)
     }
 
-    fun updateColor(value: String) {
-        _uiState.value = _uiState.value.copy(colorHex = value)
-    }
-
-    fun updateIcon(value: String) {
-        _uiState.value = _uiState.value.copy(icon = value)
-    }
-
     fun load(id: Long) {
         if (id <= 0) return
 
@@ -55,8 +45,6 @@ class CategoryEditorViewModel(
                         id = category.id,
                         name = category.name,
                         type = category.type,
-                        colorHex = category.colorHex,
-                        icon = category.icon,
                         isDefault = category.isDefault,
                         errorMessage = null
                     )
@@ -82,8 +70,6 @@ class CategoryEditorViewModel(
                 id = state.id,
                 name = state.name.trim(),
                 type = state.type,
-                colorHex = state.colorHex,
-                icon = state.icon,
                 isDefault = state.isDefault
             )
 
