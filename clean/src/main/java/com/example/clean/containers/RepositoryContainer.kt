@@ -40,6 +40,7 @@ class RepositoryContainer(context: Context) {
 
     val categoryRepository = CategoryRepositoryImpl(
         localDataSource = categoryLocalDataSource,
+        transactionLocalDataSource = transactionLocalDataSource,
         mapper = categoryMapper,
         remoteDataSource = categoryRemoteDataSource
     )
