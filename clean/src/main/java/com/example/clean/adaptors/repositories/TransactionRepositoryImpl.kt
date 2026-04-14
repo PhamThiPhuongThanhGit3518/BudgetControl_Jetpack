@@ -1,12 +1,13 @@
 package com.example.clean.adaptors.repositories
 
-import com.example.clean.adaptors.datasources.local.datasource.TransactionLocalDataSource
-import com.example.clean.adaptors.datasources.local.datasource.CategoryLocalDataSource
+import com.example.clean.adaptors.datasources.local.TransactionLocalDataSource
+import com.example.clean.adaptors.datasources.local.CategoryLocalDataSource
+import com.example.clean.adaptors.datasources.remote.TransactionRemoteDataSource
 import com.example.clean.adaptors.mapper.TransactionMapper
 import com.example.clean.adaptors.mapper.toLocal
 import com.example.clean.adaptors.mapper.toRequest
 import com.example.clean.entities.Transaction
-import com.example.clean.frameworks.network.BudgetControlApi
+import com.example.clean.frameworks.network.TransactionDto
 import com.example.clean.repositories.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -15,12 +16,12 @@ class TransactionRepositoryImpl(
     private val localDataSource: TransactionLocalDataSource,
     private val categoryLocalDataSource: CategoryLocalDataSource,
     private val mapper: TransactionMapper,
-    private val api: BudgetControlApi? = null
+    private val remoteDataSource: TransactionRemoteDataSource? = null
 ) : TransactionRepository {
 
     override suspend fun add(transaction: Transaction): Long {
         val local = mapper.toLocal(transaction)
-        val remote = api?.createTransaction(local.toRequest(resolveCategoryRemoteId(local.categoryId)))
+        val remote = remoteDataSource?.create(local.toRequest(resolveCategoryRemoteId(local.categoryId)))
         return if (remote != null) {
             upsertRemote(remote)
         } else {
@@ -32,8 +33,8 @@ class TransactionRepositoryImpl(
         val current = localDataSource.getById(transaction.id)
         val local = mapper.toLocal(transaction).copy(remoteId = current?.remoteId)
         val remoteId = current?.remoteId
-        if (api != null && remoteId != null) {
-            upsertRemote(api.updateTransaction(remoteId, local.toRequest(resolveCategoryRemoteId(local.categoryId))))
+        if (remoteDataSource != null && remoteId != null) {
+            upsertRemote(remoteDataSource.update(remoteId, local.toRequest(resolveCategoryRemoteId(local.categoryId))))
         } else {
             localDataSource.update(local)
         }
@@ -42,8 +43,8 @@ class TransactionRepositoryImpl(
     override suspend fun delete(transaction: Transaction) {
         val current = localDataSource.getById(transaction.id)
         val remoteId = current?.remoteId
-        if (api != null && remoteId != null) {
-            api.deleteTransaction(remoteId)
+        if (remoteDataSource != null && remoteId != null) {
+            remoteDataSource.delete(remoteId)
         }
         localDataSource.delete(mapper.toLocal(transaction).copy(remoteId = remoteId))
     }
@@ -71,7 +72,7 @@ class TransactionRepositoryImpl(
     }
 
     suspend fun syncFromRemote() {
-        val remoteItems = api?.listTransactions()?.items ?: return
+        val remoteItems = remoteDataSource?.list() ?: return
         localDataSource.clear()
         remoteItems.forEach { upsertRemote(it) }
     }
@@ -85,7 +86,7 @@ class TransactionRepositoryImpl(
         return category?.remoteId ?: error("Danh mục chưa được đồng bộ, vui lòng đăng nhập hoặc tải lại dữ liệu")
     }
 
-    private suspend fun upsertRemote(remote: com.example.clean.frameworks.network.TransactionDto): Long {
+    private suspend fun upsertRemote(remote: TransactionDto): Long {
         val category = categoryLocalDataSource.getByRemoteId(remote.categoryId)
             ?: return 0
         val existing = localDataSource.getByRemoteId(remote.id)
