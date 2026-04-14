@@ -23,13 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.budgetcontrol_jetpack.ui.screen.category.component.CategoryItem
 import com.example.budgetcontrol_jetpack.viewmodel.category.CategoryListViewModel
+import com.example.clean.entities.Category
 
 @Composable
 fun CategoryListScreen(
@@ -40,6 +43,7 @@ fun CategoryListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var categoryPendingDelete by remember { mutableStateOf<Category?>(null) }
 
     LaunchedEffect(uiState.errorMessage) {
         val message = uiState.errorMessage
@@ -104,10 +108,21 @@ fun CategoryListScreen(
                         category = category,
                         onClick = { onCategoryClick(category.id) },
                         onEditClick = { onEditClick(category.id) },
-                        onDeleteClick = { viewModel.deleteCategory(category) }
+                        onDeleteClick = { categoryPendingDelete = category }
                     )
                 }
             }
+        }
+
+        categoryPendingDelete?.let { category ->
+            DeleteCategoryConfirmDialog(
+                categoryName = category.name,
+                onDismiss = { categoryPendingDelete = null },
+                onConfirm = {
+                    viewModel.deleteCategory(category)
+                    categoryPendingDelete = null
+                }
+            )
         }
     }
 }
