@@ -8,8 +8,6 @@ class AddCategoryUseCase(
 ) {
     suspend operator fun invoke(category: Category): Long {
         require(category.name.isNotBlank()) { "Tên danh mục không được rỗng" }
-        require(category.colorHex.isNotBlank()) { "Màu danh mục không được rỗng" }
-        require(category.icon.isNotBlank()) { "Icon danh mục không được rỗng" }
 
         return repository.add(
             category.copy(
